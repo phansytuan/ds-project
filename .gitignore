@@ -1,0 +1,26 @@
+# Ignore Maven build output
+/target/
+
+# Ignore IDE files
+/.idea/
+*.iml
+*.ipr
+*.iws
+
+# Ignore Eclipse files
+.classpath
+.project
+.settings/
+
+# Ignore VS Code files
+.vscode/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+*.log
+
+# Ignore compiled classes
+*.class
