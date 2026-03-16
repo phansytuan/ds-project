@@ -4,32 +4,32 @@ package com.datastructures.array;
  * ============================================================
  * DATA STRUCTURE: Dynamic Array (like Java's ArrayList)
  * ============================================================
- *
+
  * CONCEPT:
  *   A dynamic array starts with a fixed capacity, and when it
  *   runs out of space, it automatically grows by allocating a
  *   new, larger array and copying all elements over.
  *   This gives us the best of both worlds: O(1) access AND
  *   unlimited growth (within memory limits).
- *
+
  * THE GROWTH TRICK (Amortized Analysis):
  *   When full, we double the capacity (e.g., 4 → 8 → 16 → 32).
  *   Doubling means we copy N elements, but we won't need to copy
  *   again for another N adds. So the "average" cost per add
  *   (amortized) is still O(1).
- *
+
  *   Copies timeline for capacity-doubling strategy:
  *   N=1:  copy 1    (total: 1)
  *   N=2:  copy 2    (total: 3)
  *   N=4:  copy 4    (total: 7)
  *   N=8:  copy 8    (total: 15)
  *   For N total adds → at most 2N copies → amortized O(1) per add
- *
+
  * REAL-WORLD USE CASES:
- *   - Java's ArrayList, Python's list, C++'s std::vector
+ *   - Java's ArrayList, Python's list, C++ std::vector
  *   - Shopping carts, playlists, dynamic tables
  *   - Any list whose size you don't know in advance
- *
+
  * TIME COMPLEXITY:
  *   Access by index : O(1)
  *   Add at end      : O(1) amortized  ← key advantage
@@ -37,9 +37,9 @@ package com.datastructures.array;
  *   Remove at index : O(n)
  *   Search          : O(n)
  *   Resize (rare)   : O(n)
- *
+
  * SPACE COMPLEXITY: O(n) — up to 2x wasted space after a resize
- *
+
  * INTERVIEW TIPS:
  *   - Know the difference between size (elements stored) vs
  *     capacity (total allocated slots)
@@ -169,7 +169,7 @@ public class DynamicArray<T> {
     /**
      * Ensures there is at least one free slot.
      * If not, DOUBLES the capacity and copies all elements.
-     *
+
      * Why double? → Amortized O(1) per add.
      * If we grew by 1 each time: N adds = 1+2+3+...+N = O(N²) total.
      * If we double each time:    N adds ≈ 2N copies total = O(N).
@@ -228,6 +228,7 @@ public class DynamicArray<T> {
     @Override
     public String toString() {
         if (size == 0) return "[]";
+
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < size; i++) {
             sb.append(data[i]);

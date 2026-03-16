@@ -29,9 +29,9 @@ package com.datastructures.array;
  *   Insert at end   : O(1)  (if space available)
  *   Insert at index : O(n)  (must shift elements right)
  *   Delete at index : O(n)  (must shift elements left)
- *
+
  * SPACE COMPLEXITY: O(n)
- *
+
  * INTERVIEW TIPS:
  *   - Always clarify if the array is sorted (enables binary search)
  *   - Common patterns: two pointers, sliding window, prefix sum
@@ -40,7 +40,7 @@ package com.datastructures.array;
  */
 public class StaticArray {
 
-    private int[] data;   // The underlying fixed-size array
+    private final int[] data;   // The underlying fixed-size array
     private int size;     // Number of elements currently stored
 
     /**
@@ -62,7 +62,7 @@ public class StaticArray {
      */
     public void add(int value) {
         if (size >= data.length) {
-            throw new IllegalStateException("Array is full! Capacity: " + data.length);
+            throw new IllegalStateException("Array is full ! Capacity: " + data.length);
         }
         data[size] = value;  // Place value at current end
         size++;              // Expand logical size
@@ -89,7 +89,7 @@ public class StaticArray {
     /**
      * Inserts a value at a specific index, shifting elements right.
      * Time: O(n) — in the worst case, every element shifts right.
-     *
+
      * Before: [10, 20, 40, 50]  insert 30 at index 2
      * After:  [10, 20, 30, 40, 50]
      */
@@ -109,7 +109,7 @@ public class StaticArray {
     /**
      * Removes the element at a specific index, shifting elements left.
      * Time: O(n)
-     *
+
      * Before: [10, 20, 30, 40, 50]  remove at index 2
      * After:  [10, 20, 40, 50]
      */
@@ -142,7 +142,7 @@ public class StaticArray {
     /**
      * Binary search — REQUIRES the array to be sorted.
      * Time: O(log n) — halves the search space each step.
-     *
+
      * Visual: searching for 30 in [10, 20, 30, 40, 50]
      *   Step 1: mid = 2, data[2] = 30 → FOUND!
      */
@@ -169,7 +169,7 @@ public class StaticArray {
     /**
      * Reverses the array in-place using two pointers.
      * Time: O(n), Space: O(1) — no extra array needed.
-     *
+
      * [1, 2, 3, 4, 5]
      *  ↑           ↑   swap → [5, 2, 3, 4, 1]
      *     ↑     ↑       swap → [5, 4, 3, 2, 1]
@@ -208,6 +208,7 @@ public class StaticArray {
     @Override
     public String toString() {
         if (size == 0) return "[]";
+
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < size; i++) {
             sb.append(data[i]);
