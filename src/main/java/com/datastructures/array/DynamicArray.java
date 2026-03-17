@@ -7,16 +7,14 @@ package com.datastructures.array;
 
  * CONCEPT:
  *   A dynamic array starts with a fixed capacity, and when it
- *   runs out of space, it automatically grows by allocating a
- *   new, larger array and copying all elements over.
+ *   runs out of space, it automatically grows by allocating a new, larger array and copying all elements over.
  *   This gives us the best of both worlds: O(1) access AND
  *   unlimited growth (within memory limits).
 
  * THE GROWTH TRICK (Amortized Analysis):
  *   When full, we double the capacity (e.g., 4 → 8 → 16 → 32).
  *   Doubling means we copy N elements, but we won't need to copy
- *   again for another N adds. So the "average" cost per add
- *   (amortized) is still O(1).
+ *   again for another N adds. So the "average" cost per add (amortized) is still O(1).
 
  *   Copies timeline for capacity-doubling strategy:
  *   N=1:  copy 1    (total: 1)
@@ -132,8 +130,7 @@ public class DynamicArray<T> {
         size--;
         data[size] = null; // Prevent memory leak (let GC collect it)
 
-        // Optional: shrink when array is only 25% full
-        // This keeps memory usage bounded
+        // Optional: shrink when array is only 25% full. This keeps memory usage bounded
         if (size > 0 && size == data.length / 4) {
             shrink();
         }
@@ -142,7 +139,7 @@ public class DynamicArray<T> {
     }
 
     /**
-     * Returns true if the list contains the specified element.
+     * Returns true If the list contains the specified element.
      * Time: O(n) — linear scan.
      */
     public boolean contains(T value) {
@@ -150,12 +147,14 @@ public class DynamicArray<T> {
     }
 
     /**
-     * Returns the index of the first occurrence, or -1 if not found.
+     * Returns the index of the first occurrence, or -1 If not found.
      * Time: O(n)
      */
     public int indexOf(T value) {
         for (int i = 0; i < size; i++) {
-            if (value == null ? data[i] == null : value.equals(data[i])) {
+            if ((value == null && data[i] == null) ||
+                    (value != null && value.equals(data[i]))) {
+                // if (value == null ? data[i] == null : value.equals(data[i]))
                 return i;
             }
         }
@@ -171,7 +170,7 @@ public class DynamicArray<T> {
      * If not, DOUBLES the capacity and copies all elements.
 
      * Why double? → Amortized O(1) per add.
-     * If we grew by 1 each time: N adds = 1+2+3+...+N = O(N²) total.
+     * If we grew by 1 each time:  N adds = 1+2+3+...+N = O(N²) total.
      * If we double each time:    N adds ≈ 2N copies total = O(N).
      */
     private void ensureCapacity() {
@@ -183,7 +182,7 @@ public class DynamicArray<T> {
     }
 
     /**
-     * Shrinks internal array to half its size to reclaim memory.
+     * Shrinks internal array to half (1/2) its size to reclaim memory.
      * Triggered when the array is only 25% full after a remove.
      */
     private void shrink() {

@@ -4,29 +4,29 @@ package com.datastructures.linkedlist;
  * ============================================================
  * DATA STRUCTURE: Singly Linked List
  * ============================================================
- *
+
  * CONCEPT:
- *   A linked list is a chain of nodes where each node holds
- *   a value and a pointer (reference) to the next node.
+ *   A linked list is a chain of nodes where each node holds a value & a pointer (reference) to the next node.
+
  *   Unlike arrays, nodes are NOT stored contiguously in memory —
  *   they can be anywhere, linked together by pointers.
- *
+
  *   head
  *    │
  *    ▼
  *   [10|→] → [20|→] → [30|→] → [40|null]
- *
+
  * KEY INSIGHT: Arrays vs Linked Lists
  *   Arrays:       fast access O(1), slow insert/delete O(n)
  *   Linked Lists: slow access O(n), fast insert/delete at head O(1)
- *
+
  * REAL-WORLD USE CASES:
- *   - Undo/redo history (each action is a node)
- *   - Browser's forward/back navigation
+ *   - Undo / redo history (each action is a node)
+ *   - Browser's forward / back navigation
  *   - Music playlists (next song pointer)
  *   - Hash table chaining (collision resolution)
- *   - Implementing stacks and queues
- *
+ *   - Implementing stacks & queues
+
  * TIME COMPLEXITY:
  *   Access by index  : O(n) — must walk from head
  *   Search           : O(n)
@@ -35,13 +35,12 @@ package com.datastructures.linkedlist;
  *   Insert at index  : O(n)
  *   Delete at head   : O(1)
  *   Delete at index  : O(n)
- *
+
  * SPACE COMPLEXITY: O(n) — plus O(n) extra for node pointers
- *
+
  * INTERVIEW TIPS:
  *   - Always handle edge cases: empty list, single node, head/tail
- *   - Classic interview problems: reverse, detect cycle, find middle,
- *     merge sorted lists, remove Nth from end
+ *   - Classic interview problems: reverse, detect cycle, find middle, merge sorted lists, remove Nth from end
  *   - The "runner" technique: use two pointers at different speeds
  * ============================================================
  */
@@ -53,7 +52,7 @@ public class SinglyLinkedList<T> {
 
     /**
      * A Node is the building block of a linked list.
-     * It holds data and a reference to the next node.
+     * It holds data & a reference to the next node.
      */
     private static class Node<T> {
         T data;
@@ -86,7 +85,7 @@ public class SinglyLinkedList<T> {
     /**
      * Adds a node at the HEAD (front) of the list.
      * Time: O(1) — just update the head pointer.
-     *
+
      * Before: head → [20] → [30] → null
      * After:  head → [10] → [20] → [30] → null
      */
@@ -105,7 +104,7 @@ public class SinglyLinkedList<T> {
     /**
      * Adds a node at the TAIL (end) of the list.
      * Time: O(1) — we maintain a tail pointer!
-     *
+
      * Before: head → [10] → [20] → null  (tail → [20])
      * After:  head → [10] → [20] → [30] → null  (tail → [30])
      */
@@ -126,7 +125,7 @@ public class SinglyLinkedList<T> {
      * Time: O(n) — must walk to position.
      */
     public void addAt(int index, T data) {
-        if (index < 0 || index > size) throw new IndexOutOfBoundsException("Index: " + index);
+        if (index < 0 || index > size)  throw new IndexOutOfBoundsException("Index: " + index);
         if (index == 0)    { addFirst(data); return; }
         if (index == size) { addLast(data); return; }
 
@@ -139,26 +138,26 @@ public class SinglyLinkedList<T> {
     }
 
     /**
-     * Removes and returns the first element.
+     * Removes & returns the first element.
      * Time: O(1)
      */
     public T removeFirst() {
-        if (isEmpty()) throw new IllegalStateException("List is empty");
+        if (isEmpty())  throw new IllegalStateException("List is empty");
         T data = head.data;
         head = head.next;  // Advance head to the next node
-        if (head == null) tail = null; // List is now empty
+        if (head == null)  tail = null; // List is now empty
         size--;
         return data;
     }
 
     /**
-     * Removes and returns the last element.
+     * Removes & returns the last element.
      * Time: O(n) — singly linked, so we must walk to find second-to-last.
      * (Doubly linked list solves this with O(1) removeLast)
      */
     public T removeLast() {
-        if (isEmpty()) throw new IllegalStateException("List is empty");
-        if (size == 1) return removeFirst();
+        if (isEmpty())  throw new IllegalStateException("List is empty");
+        if (size == 1)  return removeFirst();
 
         // Walk to the second-to-last node
         Node<T> prev = getNode(size - 2);
@@ -174,7 +173,7 @@ public class SinglyLinkedList<T> {
      * Time: O(n)
      */
     public boolean remove(T value) {
-        if (isEmpty()) return false;
+        if (isEmpty())  return false;
 
         // Special case: removing the head
         if (head.data.equals(value)) {
@@ -188,7 +187,7 @@ public class SinglyLinkedList<T> {
         while (curr != null) {
             if (curr.data.equals(value)) {
                 prev.next = curr.next;          // Skip over curr
-                if (curr == tail) tail = prev;  // Update tail if needed
+                if (curr == tail)  tail = prev;  // Update tail if needed
                 size--;
                 return true;
             }
@@ -208,14 +207,14 @@ public class SinglyLinkedList<T> {
     }
 
     /**
-     * Searches for a value and returns its index.
+     * Searches for a value & returns its index.
      * Time: O(n)
      */
     public int indexOf(T value) {
         Node<T> curr = head;
         int index = 0;
         while (curr != null) {
-            if (curr.data.equals(value)) return index;
+            if (curr.data.equals(value))  return index;
             curr = curr.next;
             index++;
         }
@@ -229,17 +228,17 @@ public class SinglyLinkedList<T> {
     /**
      * Reverses the linked list IN-PLACE.
      * Time: O(n), Space: O(1)
-     *
+
      * Technique: Iterate and flip each node's 'next' pointer.
-     *
+
      * Before: [1] → [2] → [3] → [4] → null
-     *
+
      * Step 1: prev=null, curr=[1]
      *   next=[2], [1].next=null, prev=[1], curr=[2]
      * Step 2: prev=[1], curr=[2]
      *   next=[3], [2].next=[1], prev=[2], curr=[3]
      * ... and so on.
-     *
+
      * After:  [4] → [3] → [2] → [1] → null
      */
     public void reverse() {
@@ -260,17 +259,17 @@ public class SinglyLinkedList<T> {
     /**
      * Finds the MIDDLE node using the "slow & fast pointer" technique.
      * Time: O(n), Space: O(1)
-     *
+
      * Slow moves 1 step, fast moves 2 steps.
      * When fast reaches the end, slow is at the middle.
-     *
+
      * [1] → [2] → [3] → [4] → [5]
      *  s          s          s       (slow: 1 step each)
-     *  f               f       done  (fast: 2 steps each)
+     *  f               f        done (fast: 2 steps each)
      *                  ↑ middle = 3
      */
     public T findMiddle() {
-        if (isEmpty()) throw new IllegalStateException("List is empty");
+        if (isEmpty())  throw new IllegalStateException("List is empty");
         Node<T> slow = head;
         Node<T> fast = head;
 
@@ -284,7 +283,7 @@ public class SinglyLinkedList<T> {
     /**
      * Detects a cycle using Floyd's Tortoise & Hare algorithm.
      * Time: O(n), Space: O(1)
-     *
+
      * If there's a cycle, the fast pointer will eventually lap
      * the slow pointer and they'll meet.
      */
@@ -295,7 +294,7 @@ public class SinglyLinkedList<T> {
         while (fast != null && fast.next != null) {
             slow = slow.next;
             fast = fast.next.next;
-            if (slow == fast) return true; // They met → cycle detected!
+            if (slow == fast)  return true; // They met → cycle detected!
         }
         return false;
     }
@@ -321,16 +320,17 @@ public class SinglyLinkedList<T> {
 
     public int size() { return size; }
     public boolean isEmpty() { return size == 0; }
-    public T peekFirst() { if (isEmpty()) throw new IllegalStateException(); return head.data; }
-    public T peekLast()  { if (isEmpty()) throw new IllegalStateException(); return tail.data; }
+    public T peekFirst() { if (isEmpty())  throw new IllegalStateException();  return head.data; }
+    public T peekLast()  { if (isEmpty())  throw new IllegalStateException();  return tail.data; }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("head → ");
+        
         Node<T> curr = head;
         while (curr != null) {
             sb.append("[").append(curr.data).append("]");
-            if (curr.next != null) sb.append(" → ");
+            if (curr.next != null)  sb.append(" → ");
             curr = curr.next;
         }
         return sb.append(" → null").toString();
@@ -357,8 +357,14 @@ public class SinglyLinkedList<T> {
         System.out.println("After addAt(3, 25):  " + list);
 
         // Remove operations
-        System.out.println("removeFirst():       " + list.removeFirst() + " → " + list);
-        System.out.println("removeLast():        " + list.removeLast()  + " → " + list);
+        Integer removedFirstItem = list.removeFirst();
+        System.out.println("removeFirst():       " + removedFirstItem);
+        System.out.println("List:                " + list);
+
+        Integer removedLastItem = list.removeLast();
+        System.out.println("removeLast():        " + removedLastItem);
+        System.out.println("List:                " + list);
+
         list.remove(25);
         System.out.println("remove(25):          " + list);
 
