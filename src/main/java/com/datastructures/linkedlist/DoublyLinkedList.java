@@ -4,32 +4,31 @@ package com.datastructures.linkedlist;
  * ============================================================
  * DATA STRUCTURE: Doubly Linked List
  * ============================================================
- *
+
  * CONCEPT:
  *   Like a singly linked list, but each node has TWO pointers:
- *   one to the next node and one to the PREVIOUS node.
- *   This makes traversal in both directions possible and
- *   enables O(1) removeLast (which costs O(n) in singly).
- *
+ *   1 to the next node & 1 to the PREVIOUS node.
+
+ *   This makes traversal in both directions possible & enables O(1) removeLast (which costs O(n) in singly).
+
  *        head                          tail
  *         │                             │
  *         ▼                             ▼
  *  null ← [10] ⇄ [20] ⇄ [30] ⇄ [40] → null
- *
+
  *   Each node: [prev | data | next]
- *
+
  * SINGLY vs DOUBLY:
  *   Singly:  less memory (1 pointer), removeLast is O(n)
- *   Doubly:  more memory (2 pointers), removeLast is O(1),
- *            easier to implement deque/LRU cache
- *
+ *   Doubly:  more memory (2 pointers), removeLast is O(1), easier to implement deque/LRU cache
+
  * REAL-WORLD USE CASES:
- *   - Java's LinkedList (implements both List and Deque)
+ *   - Java's LinkedList (implements both List & Deque)
  *   - Browser history (forward AND back navigation)
  *   - LRU Cache (the hot structure behind memory caching)
- *   - Text editor cursor movement (prev/next character)
+ *   - Text editor cursor movement (prev / next character)
  *   - Operating system process scheduler
- *
+
  * TIME COMPLEXITY:
  *   Access by index  : O(n) — but we can start from tail if index > size/2
  *   Search           : O(n)
@@ -38,9 +37,9 @@ package com.datastructures.linkedlist;
  *   Delete at head   : O(1)
  *   Delete at tail   : O(1) ← key advantage over singly
  *   Delete by ref    : O(1) — if you have the node reference!
- *
+
  * SPACE COMPLEXITY: O(n), with extra O(n) for prev pointers
- *
+
  * INTERVIEW TIPS:
  *   - LRU Cache = HashMap + Doubly Linked List (very common problem!)
  *   - When you have a node reference, deletion is O(1) — super useful
@@ -54,9 +53,8 @@ public class DoublyLinkedList<T> {
     // ──────────────────────────────────────────────
 
     /**
-     * A doubly linked node holds data and TWO pointers.
-     * Making it package-private allows other classes (like LRU Cache)
-     * to hold direct node references for O(1) removal.
+     * A doubly linked node holds data & TWO pointers.
+     * Making it package-private allows other classes (like LRU Cache) to hold direct node references for O(1) removal.
      */
     static class Node<T> {
         T data;
@@ -85,7 +83,7 @@ public class DoublyLinkedList<T> {
     /**
      * Inserts at the front (head).
      * Time: O(1)
-     *
+
      * Before: head → [20] ⇄ [30] ← tail
      * After:  head → [10] ⇄ [20] ⇄ [30] ← tail
      */
@@ -118,7 +116,7 @@ public class DoublyLinkedList<T> {
     }
 
     /**
-     * Removes and returns the first element.
+     * Removes & returns the first element.
      * Time: O(1)
      */
     public T removeFirst() {
@@ -135,7 +133,7 @@ public class DoublyLinkedList<T> {
     }
 
     /**
-     * Removes and returns the last element.
+     * Removes & returns the last element.
      * Time: O(1) ← THIS is the big win over singly linked list!
      */
     public T removeLast() {
@@ -154,9 +152,9 @@ public class DoublyLinkedList<T> {
     /**
      * Removes a specific node by reference in O(1)!
      * This is extremely powerful — if you hold a node reference
-     * (e.g., from a HashMap), deletion is O(1).
+        (e.g., from a HashMap), deletion is O(1).
      * This is the foundation of LRU Cache.
-     *
+
      * Time: O(1) — no traversal needed!
      */
     public void removeNode(Node<T> node) {
@@ -220,8 +218,8 @@ public class DoublyLinkedList<T> {
 
     public int size()       { return size; }
     public boolean isEmpty(){ return size == 0; }
-    public T peekFirst()    { if (isEmpty()) throw new IllegalStateException(); return head.data; }
-    public T peekLast()     { if (isEmpty()) throw new IllegalStateException(); return tail.data; }
+    public T peekFirst()    { if (isEmpty())  throw new IllegalStateException(); return head.data; }
+    public T peekLast()     { if (isEmpty())  throw new IllegalStateException(); return tail.data; }
 
     private void validateIndex(int index) {
         if (index < 0 || index >= size)

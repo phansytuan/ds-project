@@ -4,37 +4,37 @@ package com.datastructures.hashtable;
  * ============================================================
  * BONUS: LRU Cache (Least Recently Used)
  * ============================================================
- *
+
  * CONCEPT:
  *   An LRU Cache evicts the Least Recently Used item when it's
- *   full and a new item needs to be inserted.
- *
- *   "Recently used" = accessed (get) or added (put).
+ *   full & a new item needs to be inserted.
+
+ *   "Recently used" = accessed (get) / added (put).
  *   The item not used for the longest time is evicted first.
- *
- * THE TRICK — Combine two data structures:
- *
+
+ * THE TRICK — Combine 2 data structures:
+
  *   1. HashMap<key, Node>:
  *      Provides O(1) lookup of any node by key.
- *
+
  *   2. Doubly Linked List:
- *      Maintains RECENCY ORDER. Most recently used = head.
- *      Least recently used = tail.
- *      Allows O(1) insert and delete anywhere (given the node ref).
- *
+ *      Maintains RECENCY ORDER.
+ *          Most recently used = head.
+ *          Least recently used = tail.
+ *      Allows O(1) insert & delete anywhere (given the node ref).
+
  *   Example (capacity=3):
- *
+
  *   put(1): [1] (most recent)
  *   put(2): [2] ⇄ [1]
  *   put(3): [3] ⇄ [2] ⇄ [1] (full)
  *   get(1): [1] ⇄ [3] ⇄ [2] (1 moved to front as most recent)
  *   put(4): [4] ⇄ [1] ⇄ [3] (2 evicted — LRU)
- *
- * TIME COMPLEXITY: O(1) for both get and put!
+
+ * TIME COMPLEXITY : O(1) for both get & put!
  * SPACE COMPLEXITY: O(capacity)
- *
- * This is one of the MOST POPULAR coding interview questions
- * at top tech companies (Google, Meta, Amazon).
+
+ * This is one of the MOST POPULAR coding interview questions at top tech companies (Google, Meta, Amazon).
  * ============================================================
  */
 public class LRUCache {
@@ -43,7 +43,7 @@ public class LRUCache {
     // INNER CLASSES
     // ──────────────────────────────────────────────
 
-    /** Node that stores both key and value (we need the key to delete from map). */
+    /** Node that stores both key & value (we need the key to delete from map). */
     private static class CacheNode {
         int key;
         int value;
@@ -63,9 +63,9 @@ public class LRUCache {
     private final int capacity;
     private final java.util.HashMap<Integer, CacheNode> map; // key → node (O(1) lookup)
 
-    // Use SENTINEL nodes (dummy head and tail) to simplify edge cases.
-    // head.next = most recently used
-    // tail.prev = least recently used
+    // Use SENTINEL nodes (dummy head & tail) to simplify edge cases.
+    //  head.next = most recently used
+    //  tail.prev = least recently used
     private final CacheNode head; // Dummy head (most recent side)
     private final CacheNode tail; // Dummy tail (least recent side)
 
@@ -90,7 +90,7 @@ public class LRUCache {
      * Time: O(1)
      */
     public int get(int key) {
-        if (!map.containsKey(key)) return -1;
+        if (!map.containsKey(key))  return -1;
 
         CacheNode node = map.get(key);
         moveToFront(node); // Mark as recently used
