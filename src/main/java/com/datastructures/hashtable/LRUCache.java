@@ -66,8 +66,8 @@ public class LRUCache {
     // Use SENTINEL nodes (dummy head & tail) to simplify edge cases.
     //  head.next = most recently used
     //  tail.prev = least recently used
-    private final CacheNode head; // Dummy head (most recent side)
-    private final CacheNode tail; // Dummy tail (least recent side)
+    private final CacheNode head;  // Dummy head (most recent side)
+    private final CacheNode tail;  // Dummy tail (least recent side)
 
     public LRUCache(int capacity) {
         this.capacity = capacity;

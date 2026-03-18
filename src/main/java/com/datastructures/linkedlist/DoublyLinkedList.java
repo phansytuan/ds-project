@@ -7,7 +7,7 @@ package com.datastructures.linkedlist;
 
  * CONCEPT:
  *   Like a singly linked list, but each node has TWO pointers:
- *   1 to the next node & 1 to the PREVIOUS node.
+ *    1 to the next node & 1 to the PREVIOUS node.
 
  *   This makes traversal in both directions possible & enables O(1) removeLast (which costs O(n) in singly).
 
@@ -186,7 +186,7 @@ public class DoublyLinkedList<T> {
 
     /**
      * Returns the element at a specific index.
-     * Time: O(n), but optimized: start from head or tail based on index.
+     * Time: O(n), but optimized: start from head / tail based on index.
      */
     public T get(int index) {
         validateIndex(index);
