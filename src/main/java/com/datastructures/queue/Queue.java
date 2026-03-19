@@ -4,17 +4,16 @@ package com.datastructures.queue;
  * ============================================================
  * DATA STRUCTURE: Queue
  * ============================================================
- *
+
  * CONCEPT:
  *   A queue is a FIFO (First In, First Out) data structure.
- *   Like a line at a coffee shop — first person in is the
- *   first person served. Elements are added at the REAR and
- *   removed from the FRONT.
- *
+ *   Like a line at a coffee shop — first person in is the first person served.
+ *   Elements are added at the REAR & removed from the FRONT.
+
  *   enqueue(x) → add to rear
  *   dequeue()  → remove from front
  *   peek()     → look at front without removing
- *
+
  *   Visual:
  *   FRONT                        REAR
  *     │                            │
@@ -22,38 +21,38 @@ package com.datastructures.queue;
  *    [10] ← [20] ← [30] ← [40]    ← enqueue adds here
  *     ↑
  *   dequeue removes here
- *
+
  * IMPLEMENTATION: Circular Array Queue
- *   Using a plain array with front/rear pointers that wrap
+ *   Using a plain array with front / rear pointers that wrap
  *   around (modulo). This avoids the O(n) shifting you'd need
  *   with a naive array-based queue.
- *
+
  *   front=0, rear=3, size=4, capacity=6:
  *   Index: [0]  [1]  [2]  [3]  [4]  [5]
  *   Data:  [A]  [B]  [C]  [D]  [ ]  [ ]
  *            ↑              ↑
  *          front           rear
- *
+
  *   After dequeue A and enqueue E:
  *   front=1, rear=4, size=4:
  *   Index: [0]  [1]  [2]  [3]  [4]  [5]
  *   Data:  [ ]  [B]  [C]  [D]  [E]  [ ]
  *                ↑              ↑
  *              front            rear
- *
+
  * REAL-WORLD USE CASES:
  *   - BFS (Breadth-First Search) — most common queue use in interviews
  *   - Task schedulers, print spoolers
  *   - Message queues (Kafka, RabbitMQ concepts)
  *   - Handling HTTP request queues in a web server
  *   - Sliding window problems (monotonic deque)
- *
+
  * TIME COMPLEXITY:
  *   Enqueue : O(1)
  *   Dequeue : O(1)
  *   Peek    : O(1)
  *   Search  : O(n)
- *
+
  * SPACE COMPLEXITY: O(n)
  * ============================================================
  */
@@ -80,7 +79,7 @@ public class Queue<T> {
     /**
      * ENQUEUE: Add element to the rear of the queue.
      * Time: O(1) amortized
-     *
+
      * We use modulo to wrap the rear pointer around the array.
      * rear = (rear + 1) % capacity
      */
@@ -121,8 +120,8 @@ public class Queue<T> {
     public int size() { return size; }
 
     /**
-     * Resize: Allocate a new array (2x), copy elements in order
-     * starting from 'front', reset front and rear pointers.
+     * Resize: Allocate a new array (2x), copy elements in order starting from 'front', reset front and rear pointers.
+
      * This "unwinds" the circular layout into a fresh linear layout.
      */
     private void resize() {
@@ -138,8 +137,8 @@ public class Queue<T> {
 
     @Override
     public String toString() {
-        if (isEmpty()) return "Queue[]";
-        StringBuilder sb = new StringBuilder("Queue[front→");
+        if (isEmpty()) return "Queue []";
+        StringBuilder sb = new StringBuilder("Queue [front→");
         for (int i = 0; i < size; i++) {
             sb.append(data[(front + i) % data.length]);
             if (i < size - 1) sb.append(", ");
@@ -149,14 +148,14 @@ public class Queue<T> {
 
     // ══════════════════════════════════════════════
     // DEQUE: Double-Ended Queue
-    // (supports add/remove from BOTH ends)
+    // (supports add / remove from BOTH ends)
     // ══════════════════════════════════════════════
 
     /**
-     * A Deque (Double-Ended Queue) generalizes both Stack and Queue:
+     * A Deque (Double-Ended Queue) generalizes both Stack & Queue:
      *   - addFirst / removeFirst → Stack behavior
      *   - addLast  / removeLast  → Queue behavior
-     *
+
      * Real use: sliding window maximum problem (monotonic deque)
      */
     public static class Deque<T> {
@@ -234,8 +233,8 @@ public class Queue<T> {
 
         @Override
         public String toString() {
-            if (isEmpty()) return "Deque[]";
-            StringBuilder sb = new StringBuilder("Deque[");
+            if (isEmpty()) return "Deque []";
+            StringBuilder sb = new StringBuilder("Deque [");
             for (int i = 0; i < size; i++) {
                 sb.append(data[(front + i) % data.length]);
                 if (i < size - 1) sb.append(", ");
@@ -252,10 +251,10 @@ public class Queue<T> {
      * PROBLEM: Given array and window size k, find the max of each window.
      * Input: nums=[1,3,-1,-3,5,3,6,7], k=3
      * Output: [3,3,5,5,6,7]
-     *
-     * Approach: Monotonic Deque — maintain a deque of INDICES
-     * in decreasing order of their values. The front always holds
-     * the index of the current window's maximum.
+
+     * Approach: Monotonic Deque — maintain a deque of INDICES in decreasing order of their values.
+     * The front always holds the index of the current window's maximum.
+
      * Time: O(n), Space: O(k)
      */
     public static int[] slidingWindowMax(int[] nums, int k) {
@@ -305,7 +304,7 @@ public class Queue<T> {
         System.out.println("\n--- Deque Demo ---");
         Deque<Integer> dq = new Deque<>();
         dq.addLast(10); dq.addLast(20); dq.addFirst(5);
-        System.out.println("Deque: " + dq);
+        System.out.println("Deque:       " + dq);
         System.out.println("removeFirst: " + dq.removeFirst());
         System.out.println("removeLast:  " + dq.removeLast());
         System.out.println("After:       " + dq);

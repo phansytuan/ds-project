@@ -112,8 +112,8 @@ public class Stack<T> {
 
     @Override
     public String toString() {
-        if (isEmpty()) return "Stack[]";
-        StringBuilder sb = new StringBuilder("Stack[top→");
+        if (isEmpty()) return "Stack []";
+        StringBuilder sb = new StringBuilder("Stack [top→");
 
         for (int i = top; i >= 0; i--) {
             sb.append(data[i]);
@@ -229,7 +229,7 @@ public class Stack<T> {
 
         @Override
         public String toString() {
-            return "main=" + mainStack + ",  minTracker=" + minStack;
+            return "main = " + mainStack + ", minTracker = " + minStack;
         }
     }
 
@@ -320,6 +320,12 @@ public class Stack<T> {
 
         System.out.printf("2 1 + 3 *  = %d%n", evalRPN(tokens1));
         System.out.printf("4 13 5 / + = %d%n", evalRPN(tokens2));
+        /*
+            4 13 5 / +
+            = 4 + (13 / 5)
+            = 4 + 2
+            = 6
+        */
 
         // ─────────────────────────────
         // MIN STACK
