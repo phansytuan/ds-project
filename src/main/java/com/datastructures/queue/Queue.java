@@ -1,5 +1,8 @@
 package com.datastructures.queue;
 
+import java.util.Objects;
+import java.util.logging.Logger;
+
 /**
  * ============================================================
  * DATA STRUCTURE: Queue
@@ -57,7 +60,10 @@ package com.datastructures.queue;
  */
 public class Queue<T> {
 
+    private static final Logger LOGGER = Logger.getLogger(Queue.class.getName());
+
     private static final int DEFAULT_CAPACITY = 8;
+    private static final int GROWTH_FACTOR = 2;
 
     private Object[] data;
     private int front;    // Index of the front element
@@ -83,6 +89,8 @@ public class Queue<T> {
      * rear = (rear + 1) % capacity
      */
     public void enqueue(T value) {
+        Objects.requireNonNull(value, "value");
+
         if (size == data.length) {
             resize(); // Grow if full
         }
@@ -123,7 +131,7 @@ public class Queue<T> {
      * This "unwinds" the circular layout into a fresh linear layout.
      */
     private void resize() {
-        Object[] newData = new Object[data.length * 2];
+        Object[] newData = new Object[data.length * GROWTH_FACTOR];
         for (int i = 0; i < size; i++) {
             // Access elements in order, accounting for circular wrap
             newData[i] = data[(front + i) % data.length];
@@ -163,7 +171,7 @@ public class Queue<T> {
         private int size;
 
         public Deque() {
-            data  = new Object[8];
+            data  = new Object[DEFAULT_CAPACITY];
             front = 0;
             rear  = 0;
             size  = 0;
@@ -171,6 +179,8 @@ public class Queue<T> {
 
         /** Add to front. */
         public void addFirst(T value) {
+            Objects.requireNonNull(value, "value");
+
             if (size == data.length) grow();
             // Move front backward (with wrap-around)
             front = (front - 1 + data.length) % data.length;
@@ -180,6 +190,8 @@ public class Queue<T> {
 
         /** Add to rear. */
         public void addLast(T value) {
+            Objects.requireNonNull(value, "value");
+
             if (size == data.length) grow();
             data[rear] = value;
             rear = (rear + 1) % data.length;
@@ -209,10 +221,14 @@ public class Queue<T> {
         }
 
         @SuppressWarnings("unchecked")
-        public T peekFirst() { return (T) data[front]; }
+        public T peekFirst() {
+            if (isEmpty()) throw new IllegalStateException("Deque empty");
+            return (T) data[front];
+        }
 
         @SuppressWarnings("unchecked")
         public T peekLast()  {
+            if (isEmpty()) throw new IllegalStateException("Deque empty");
             return (T) data[(rear - 1 + data.length) % data.length];
         }
 
@@ -220,7 +236,7 @@ public class Queue<T> {
         public int size() { return size; }
 
         private void grow() {
-            Object[] newData = new Object[data.length * 2];
+            Object[] newData = new Object[data.length * GROWTH_FACTOR];
             for (int i = 0; i < size; i++) {
                 newData[i] = data[(front + i) % data.length];
             }
@@ -300,35 +316,36 @@ public class Queue<T> {
     */
 
     public static void main(String[] args) {
-        System.out.println("╔══════════════════════════════════╗");
-        System.out.println("║           QUEUE DEMO             ║");
-        System.out.println("╚══════════════════════════════════╝\n");
+        LOGGER.info("╔══════════════════════════════════╗");
+        LOGGER.info("║           QUEUE DEMO             ║");
+        LOGGER.info("╚══════════════════════════════════╝");
 
         // Basic queue
         Queue<String> q = new Queue<>();
         q.enqueue("Alice"); q.enqueue("Bob"); q.enqueue("Charlie");
-        System.out.println("After enqueues: " + q);
-        System.out.println("peek():         " + q.peek());
-        System.out.println("dequeue():      " + q.dequeue() + " -> " + q);
+        LOGGER.info("After enqueues: " + q);
+        LOGGER.info("peek():         " + q.peek());
+        LOGGER.info("dequeue():      " + q.dequeue() + " -> " + q);
 
         // Deque
-        System.out.println("\n--- Deque Demo ---");
+        LOGGER.info("--- Deque Demo ---");
         Deque<Integer> dq = new Deque<>();
         dq.addLast(10); dq.addLast(20); dq.addFirst(5);
-        System.out.println("Deque:       " + dq);
-        System.out.println("removeFirst: " + dq.removeFirst());
-        System.out.println("removeLast:  " + dq.removeLast());
-        System.out.println("After:       " + dq);
+        LOGGER.info("Deque:       " + dq);
+        LOGGER.info("removeFirst: " + dq.removeFirst());
+        LOGGER.info("removeLast:  " + dq.removeLast());
+        LOGGER.info("After:       " + dq);
 
         // Sliding Window Maximum
-        System.out.println("\n--- Sliding Window Maximum (k=3) ---");
+        LOGGER.info("--- Sliding Window Maximum (k=3) ---");
         int[] nums = {1, 3, -1, -3, 5, 3, 6, 7};
         int[] maxes = slidingWindowMax(nums, 3);
 
-        System.out.print("Input:  [1, 3, -1, -3, 5, 3, 6, 7]\nOutput: [");
+        StringBuilder outSb = new StringBuilder("Input:  [1, 3, -1, -3, 5, 3, 6, 7]\nOutput: [");
         for (int i = 0; i < maxes.length; i++) {
-            System.out.print(maxes[i] + (i < maxes.length - 1 ? ", " : ""));
+            outSb.append(maxes[i]).append(i < maxes.length - 1 ? ", " : "");
         }
-        System.out.println("]"); // Expected: [3,3,5,5,6,7]
+        outSb.append("]"); // Expected: [3,3,5,5,6,7]
+        LOGGER.info(outSb.toString());
     }
 }

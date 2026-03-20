@@ -1,5 +1,9 @@
 package com.datastructures.hashtable;
 
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.logging.Logger;
+
 /**
  * ============================================================
  * DATA STRUCTURE: Hash Table (HashMap)
@@ -59,10 +63,12 @@ package com.datastructures.hashtable;
  * ============================================================
  */
 public class HashTable<K, V> {
+    private static final Logger LOGGER = Logger.getLogger(HashTable.class.getName());
 
     private static final int DEFAULT_CAPACITY = 16;
     private static final double LOAD_FACTOR_THRESHOLD = 0.75;
     private static final int NON_NEGATIVE_MASK = 0x7FFFFFFF;
+    private static final int NO_SOLUTION_INDEX = -1;
 
     // ──────────────────────────────────────────────
     // INNER CLASS: Entry (key-value pair node)
@@ -114,7 +120,7 @@ public class HashTable<K, V> {
      * Why mask with 0x7FFFFFFF ? Because Java's % on negative numbers returns a negative result. This clears the sign bit.
      */
     private int getBucketIndex(K key) {
-        if (key == null) return 0; // Null keys go to bucket 0
+        if (key == null) return 0; // Should never happen for public API (we validate inputs)
 
         int hash = key.hashCode();
         // Secondary hash mixing (reduces clustering from bad hashCode()s)
@@ -135,6 +141,9 @@ public class HashTable<K, V> {
      * If the bucket is occupied by a different key → chain it.
      */
     public void put(K key, V value) {
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(value, "value");
+
         int index = getBucketIndex(key);
         Entry<K, V> head = buckets[index];
 
@@ -165,6 +174,8 @@ public class HashTable<K, V> {
      * Time: O(1) average
      */
     public V get(K key) {
+        Objects.requireNonNull(key, "key");
+
         int index = getBucketIndex(key);
         Entry<K, V> curr = buckets[index];
 
@@ -172,7 +183,7 @@ public class HashTable<K, V> {
             if (keysEqual(curr.key, key)) return curr.value;
             curr = curr.next;
         }
-        return null; // Key not found
+        throw new NoSuchElementException("Key not found: " + key);
     }
 
     /**
@@ -182,6 +193,8 @@ public class HashTable<K, V> {
      * Must re-link the chain, skipping the removed entry.
      */
     public V remove(K key) {
+        Objects.requireNonNull(key, "key");
+
         int index = getBucketIndex(key);
         Entry<K, V> curr = buckets[index];
         Entry<K, V> prev = null;
@@ -200,7 +213,7 @@ public class HashTable<K, V> {
             prev = curr;
             curr = curr.next;
         }
-        return null; // Key not found
+        throw new NoSuchElementException("Key not found: " + key);
     }
 
     /** Returns true if the key exists in the table. */
@@ -269,17 +282,17 @@ public class HashTable<K, V> {
 
     /** Shows each bucket & its chain — great for debugging. */
     public void printBuckets() {
-        System.out.println("HashTable internals (capacity=" + capacity + ", size=" + size + "):");
+        LOGGER.info("HashTable internals (capacity=" + capacity + ", size=" + size + "):");
         for (int i = 0; i < capacity; i++) {
             if (buckets[i] != null) {
-                System.out.print("  bucket[" + i + "]: ");
+                StringBuilder bucketSb = new StringBuilder("  bucket[" + i + "]: ");
                 Entry<K, V> curr = buckets[i];
                 while (curr != null) {
-                    System.out.print("[" + curr.key + "=" + curr.value + "]");
-                    if (curr.next != null) System.out.print(" → ");
+                    bucketSb.append("[").append(curr.key).append("=").append(curr.value).append("]");
+                    if (curr.next != null) bucketSb.append(" -> ");
                     curr = curr.next;
                 }
-                System.out.println();
+                LOGGER.info(bucketSb.toString());
             }
         }
     }
@@ -323,7 +336,7 @@ public class HashTable<K, V> {
             }
             map.put(nums[i], i); // Store this number's index
         }
-        return new int[]{-1, -1}; // No solution
+        return new int[]{NO_SOLUTION_INDEX, NO_SOLUTION_INDEX}; // No solution
     }
 
     /**
@@ -380,40 +393,39 @@ public class HashTable<K, V> {
     // ──────────────────────────────────────────────
 
     public static void main(String[] args) {
-        System.out.println("╔══════════════════════════════════╗");
-        System.out.println("║        HASH TABLE DEMO           ║");
-        System.out.println("╚══════════════════════════════════╝\n");
+        LOGGER.info("╔══════════════════════════════════╗");
+        LOGGER.info("║        HASH TABLE DEMO           ║");
+        LOGGER.info("╚══════════════════════════════════╝");
 
         HashTable<String, Integer> table = new HashTable<>();
         table.put("Alice", 30);
         table.put("Bob", 25);
         table.put("Charlie", 35);
         table.put("Diana", 28);
-        System.out.println("After puts: " + table);
+        LOGGER.info("After puts: " + table);
 
-        System.out.println("get('Bob')     = " + table.get("Bob"));
-        System.out.println("get('Eve')     = " + table.get("Eve"));  // null
-        System.out.println("containsKey?   " + table.containsKey("Alice"));
+        LOGGER.info("get('Bob')     = " + table.get("Bob"));
+        LOGGER.info("containsKey?   " + table.containsKey("Alice"));
 
         table.put("Alice", 31); // Update
-        System.out.println("After update Alice→31: " + table);
+        LOGGER.info("After update Alice->31: " + table);
 
         table.remove("Bob");
-        System.out.println("After remove Bob: " + table);
+        LOGGER.info("After remove Bob: " + table);
 
         table.printBuckets();
 
-        System.out.println("\n--- Two Sum ---");
+        LOGGER.info("--- Two Sum ---");
         int[] nums = {2, 7, 11, 15};
         int[] result = twoSum(nums, 9);
-        System.out.println("twoSum([2,7,11,15], 9) = [" + result[0] + ", " + result[1] + "]");
+        LOGGER.info("twoSum([2,7,11,15], 9) = [" + result[0] + ", " + result[1] + "]");
 
-        System.out.println("\n--- Group Anagrams ---");
+        LOGGER.info("--- Group Anagrams ---");
         String[] words = {"eat", "tea", "tan", "ate", "nat", "bat"};
-        System.out.println("groupAnagrams: " + groupAnagrams(words));
+        LOGGER.info("groupAnagrams: " + groupAnagrams(words));
 
-        System.out.println("\n--- Longest Consecutive Sequence ---");
+        LOGGER.info("--- Longest Consecutive Sequence ---");
         int[] seq = {100, 4, 200, 1, 3, 2};
-        System.out.println("longestConsecutive([100,4,200,1,3,2]) = " + longestConsecutive(seq));
+        LOGGER.info("longestConsecutive([100,4,200,1,3,2]) = " + longestConsecutive(seq));
     }
 }

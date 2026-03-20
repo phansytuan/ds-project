@@ -11,6 +11,8 @@ public class WallpaperTree extends JPanel {
     private static final double INITIAL_ANGLE_DEGREES = -90;
     private static final double BRANCH_ANGLE_OFFSET_DEGREES = 25;
     private static final double BRANCH_LENGTH_MULTIPLIER = 15.0;
+    private static final int WINDOW_WIDTH = 1920;
+    private static final int WINDOW_HEIGHT = 1080;
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -39,7 +41,7 @@ public class WallpaperTree extends JPanel {
     public static void main(String[] args) {
         JFrame frame = new JFrame("Java Aesthetic");
         frame.add(new WallpaperTree());
-        frame.setSize(1920, 1080);
+        frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
