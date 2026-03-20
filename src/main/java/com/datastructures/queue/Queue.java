@@ -29,8 +29,8 @@ package com.datastructures.queue;
  *   front=0, rear=3, size=4, capacity=6:
  *   Index: [0]  [1]  [2]  [3]  [4]  [5]
  *   Data:  [A]  [B]  [C]  [D]  [ ]  [ ]
- *            ↑              ↑
- *          front           rear
+ *           ↑              ↑
+ *         front           rear
 
  *   After dequeue A and enqueue E:
  *   front=1, rear=4, size=4:
@@ -92,7 +92,7 @@ public class Queue<T> {
     }
 
     /**
-     * DEQUEUE: Remove and return the front element.
+     * DEQUEUE: Remove & return the front element.
      * Time: O(1)
      */
     @SuppressWarnings("unchecked")
@@ -120,7 +120,6 @@ public class Queue<T> {
 
     /**
      * Resize: Allocate a new array (2x), copy elements in order starting from 'front', reset front and rear pointers.
-
      * This "unwinds" the circular layout into a fresh linear layout.
      */
     private void resize() {
@@ -137,12 +136,12 @@ public class Queue<T> {
     @Override
     public String toString() {
         if (isEmpty()) return "Queue []";
-        StringBuilder sb = new StringBuilder("Queue [front→");
+        StringBuilder sb = new StringBuilder("Queue [front->");
         for (int i = 0; i < size; i++) {
             sb.append(data[(front + i) % data.length]);
             if (i < size - 1) sb.append(", ");
         }
-        return sb.append("←rear]").toString();
+        return sb.append("<-rear]").toString();
     }
 
     // ══════════════════════════════════════════════
@@ -257,6 +256,14 @@ public class Queue<T> {
      * Time: O(n), Space: O(k)
      */
     public static int[] slidingWindowMax(int[] nums, int k) {
+        java.util.Objects.requireNonNull(nums, "nums");
+        if (k <= 0) {
+            throw new IllegalArgumentException("k must be positive");
+        }
+        if (k > nums.length) {
+            throw new IllegalArgumentException("k must be <= nums.length");
+        }
+
         int n = nums.length;
         int[] result = new int[n - k + 1];
         Deque<Integer> deque = new Deque<>(); // Stores indices, not values
@@ -302,7 +309,7 @@ public class Queue<T> {
         q.enqueue("Alice"); q.enqueue("Bob"); q.enqueue("Charlie");
         System.out.println("After enqueues: " + q);
         System.out.println("peek():         " + q.peek());
-        System.out.println("dequeue():      " + q.dequeue() + " → " + q);
+        System.out.println("dequeue():      " + q.dequeue() + " -> " + q);
 
         // Deque
         System.out.println("\n--- Deque Demo ---");
@@ -317,6 +324,7 @@ public class Queue<T> {
         System.out.println("\n--- Sliding Window Maximum (k=3) ---");
         int[] nums = {1, 3, -1, -3, 5, 3, 6, 7};
         int[] maxes = slidingWindowMax(nums, 3);
+
         System.out.print("Input:  [1, 3, -1, -3, 5, 3, 6, 7]\nOutput: [");
         for (int i = 0; i < maxes.length; i++) {
             System.out.print(maxes[i] + (i < maxes.length - 1 ? ", " : ""));
