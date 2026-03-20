@@ -23,9 +23,8 @@ package com.datastructures.queue;
  *   dequeue removes here
 
  * IMPLEMENTATION: Circular Array Queue
- *   Using a plain array with front / rear pointers that wrap
- *   around (modulo). This avoids the O(n) shifting you'd need
- *   with a naive array-based queue.
+ *   Using a plain array with front / rear pointers that wrap around (modulo). 
+ *   This avoids the O(n) shifting you'd need with a naive array-based queue.
 
  *   front=0, rear=3, size=4, capacity=6:
  *   Index: [0]  [1]  [2]  [3]  [4]  [5]
@@ -100,7 +99,7 @@ public class Queue<T> {
     public T dequeue() {
         if (isEmpty()) throw new IllegalStateException("Queue is empty!");
         T value = (T) data[front];
-        data[front] = null;                   // Help GC
+        data[front] = null;                  // Help GC
         front = (front + 1) % data.length;   // Advance front (wrap around)
         size--;
         return value;
@@ -284,9 +283,14 @@ public class Queue<T> {
         return result;
     }
 
-    // ──────────────────────────────────────────────
-    // DEMO
-    // ──────────────────────────────────────────────
+    /* ─────────────────────────────────────────────
+    DEMO
+                    Queue	     Deque
+    Nghĩa	        Hàng đợi	 Hàng đợi 2 đầu
+    Lấy dữ liệu	    Lấy từ đầu	 Lấy từ đầu / cuối
+    Thêm dữ liệu	Thêm cuối	 Thêm đầu / cuối
+    ──────────────────────────────────────────────
+    */
 
     public static void main(String[] args) {
         System.out.println("╔══════════════════════════════════╗");
