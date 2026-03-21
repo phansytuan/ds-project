@@ -1,8 +1,17 @@
 package com.datastructures;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
+/**
+ * Small Swing demo: a fractal "tree" drawn with recursive branching.
+ * Each call draws one segment, then branches left and right with a shallower depth until depth reaches zero.
+ */
 public class WallpaperTree extends JPanel {
     private static final Color BACKGROUND_COLOR = Color.BLACK;
     private static final Color MATRIX_GREEN = new Color(0, 255, 65); // Classic Matrix Green

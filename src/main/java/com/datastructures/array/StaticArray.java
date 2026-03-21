@@ -1,256 +1,185 @@
 package com.datastructures.array;
 
 /**
- * ============================================================
- * DATA STRUCTURE: Static Array
- * ============================================================
-
- * CONCEPT:
- *   An array is the most fundamental data structure — a contiguous
- *   block of memory where elements are stored sequentially.
- *   Each element is accessed in O(1) time via its index.
-
- * HOW IT WORKS IN MEMORY:
- *   Index:  [0]  [1]  [2]  [3]  [4]
- *   Value:  [10] [20] [30] [40] [50]
- *   Memory: 100  104  108  112  116   (4 bytes per int)
- *   address[i] = base_address + (i * element_size)
-
- * REAL-WORLD USE CASES:
- *   - Storing a fixed list of items (days of the week, RGB pixels)
- *   - Image processing (pixel matrices)
- *   - Lookup tables and caches
- *   - Building blocks for other data structures (heap, hash table)
-
- * TIME COMPLEXITY:
- *   Access by index : O(1)  ← best feature of arrays
- *   Search (linear) : O(n)
- *   Search (binary) : O(log n) — only if sorted
- *   Insert at end   : O(1)  (if space available)
- *   Insert at index : O(n)  (must shift elements right)
- *   Delete at index : O(n)  (must shift elements left)
-
- * SPACE COMPLEXITY: O(n)
-
- * INTERVIEW TIPS:
- *   - Always clarify if the array is sorted (enables binary search)
- *   - Common patterns: two pointers, sliding window, prefix sum
- *   - Watch for off-by-one errors on index bounds
- * ============================================================
+ * A fixed-size array stores elements in consecutive slots. You pick the capacity once;
+ * the logical {@code size} grows as you add values until the array is full.
+ * <p>
+ * Index access is O(1). Inserting or removing in the middle needs shifting neighbors, so that is O(n).
  */
 public class StaticArray {
 
-    private final int[] data;   // The underlying fixed-size array
-    private int size;     // Number of elements currently stored
+    private final int[] data;
+    private int size;
 
-    /**
-     * Constructor: allocates a fixed-size array.
-     * @param capacity Maximum number of elements this array can hold.
-     */
+    /** Creates an empty array that can hold up to {@code capacity} integers. */
     public StaticArray(int capacity) {
         this.data = new int[capacity];
         this.size = 0;
     }
 
-    // ──────────────────────────────────────────────
-    // CORE OPERATIONS
-    // ──────────────────────────────────────────────
-
-    /**
-     * Adds an element at the end of the array.
-     * Time: O(1) — we know exactly where the next slot is.
-     */
+    /** Appends {@code value} at the next free slot. Throws if the array is full. */
     public void add(int value) {
         if (size >= data.length) {
-            throw new IllegalStateException("Array is full ! Capacity: " + data.length);
+            throw new IllegalStateException("Array is full. Capacity: " + data.length);
         }
-        data[size] = value;  // Place value at current end
-        size++;              // Expand logical size
+        data[size] = value;
+        size++;
     }
 
-    /**
-     * Gets the element at a specific index.
-     * Time: O(1) — direct memory address calculation.
-     */
+    /** Returns the value at {@code index}. */
     public int get(int index) {
         validateIndex(index);
         return data[index];
     }
 
-    /**
-     * Updates the value at a specific index.
-     * Time: O(1)
-     */
+    /** Overwrites the value at {@code index}. */
     public void set(int index, int value) {
         validateIndex(index);
         data[index] = value;
     }
 
     /**
-     * Inserts a value at a specific index, shifting elements right.
-     * Time: O(n) — in the worst case, every element shifts right.
-
-     * Before: [10, 20, 40, 50]  insert 30 at index 2
-     * After:  [10, 20, 30, 40, 50]
+     * Inserts {@code value} at {@code index} and shifts everything from that index to the right.
+     * <p>
+     * Example: [10, 20, 40, 50] insert 30 at index 2 → [10, 20, 30, 40, 50]
      */
     public void insertAt(int index, int value) {
-        if (size >= data.length) throw new IllegalStateException("Array is full!");
-        if (index < 0 || index > size) throw new IndexOutOfBoundsException("Index: " + index);
-
-        // Shift elements from the end to 'index' one position to the right
-        for (int i = size; i > index; i--) {
-            data[i] = data[i - 1];
+        if (size >= data.length) {
+            throw new IllegalStateException("Array is full!");
+        }
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException("Index: " + index);
         }
 
+        for (int slot = size; slot > index; slot--) {
+            data[slot] = data[slot - 1];
+        }
         data[index] = value;
         size++;
     }
 
     /**
-     * Removes the element at a specific index, shifting elements left.
-     * Time: O(n)
-
-     * Before: [10, 20, 30, 40, 50]  remove at index 2
-     * After:  [10, 20, 40, 50]
+     * Removes the value at {@code index} and shifts everything after it left by one slot.
+     * <p>
+     * Example: [10, 20, 30, 40, 50] remove index 2 → [10, 20, 40, 50]
      */
     public int removeAt(int index) {
         validateIndex(index);
-        int removed = data[index];
+        int removedValue = data[index];
 
-        // Shift elements from 'index+1' to end one position left
-        for (int i = index; i < size - 1; i++) {
-            data[i] = data[i + 1];
+        for (int slot = index; slot < size - 1; slot++) {
+            data[slot] = data[slot + 1];
         }
 
         size--;
-        data[size] = 0; // Optional: clear the ghost element
-        return removed;
+        data[size] = 0;
+        return removedValue;
     }
 
-    /**
-     * Linear search — scan every element.
-     * Time: O(n)
-     * @return index of value, or -1 if not found
-     */
+    /** Scans from the start; returns the index of {@code value}, or -1 if not found. */
     public int linearSearch(int value) {
-        for (int i = 0; i < size; i++) {
-            if (data[i] == value) return i;
+        for (int index = 0; index < size; index++) {
+            if (data[index] == value) {
+                return index;
+            }
         }
         return -1;
     }
 
     /**
-     * Binary search — REQUIRES the array to be sorted.
-     * Time: O(log n) — halves the search space each step.
-
-     * Visual: searching for 30 in [10, 20, 30, 40, 50]
-     *   Step 1: mid = 2, data[2] = 30 → FOUND!
+     * Binary search on the used portion of the array; the values must already be sorted.
+     * <p>
+     * Idea: compare the middle element to {@code value}. If {@code value} is larger, search the right half;
+     * if smaller, search the left half. Repeat until found or the range is empty.
      */
     public int binarySearch(int value) {
-        int left = 0;
-        int right = size - 1;
+        int leftIndex = 0;
+        int rightIndex = size - 1;
 
-        while (left <= right) {
-            // Use (left + right) / 2 is safe for small arrays,
-            // but left + (right - left) / 2 avoids integer overflow
-            int mid = left + (right - left) / 2;
+        while (leftIndex <= rightIndex) {
+            int middleIndex = leftIndex + (rightIndex - leftIndex) / 2;
 
-            if (data[mid] == value) {
-                return mid;             // Found it!
-            } else if (data[mid] < value) {
-                left = mid + 1;         // Search the right half
+            if (data[middleIndex] == value) {
+                return middleIndex;
+            }
+            if (data[middleIndex] < value) {
+                leftIndex = middleIndex + 1;
             } else {
-                right = mid - 1;        // Search the left half
+                rightIndex = middleIndex - 1;
             }
         }
-        return -1; // Not found
+        return -1;
     }
 
     /**
-     * Reverses the array in-place using two pointers.
-     * Time: O(n), Space: O(1) — no extra array needed.
-
-     * [1, 2, 3, 4, 5]
-     *  ↑           ↑   swap → [5, 2, 3, 4, 1]
-     *     ↑     ↑       swap → [5, 4, 3, 2, 1]
-     *        ↑          mid — done
+     * Reverses the order of elements in the used part of the array by swapping pairs from both ends.
      */
     public void reverse() {
-        int left = 0;
-        int right = size - 1;
+        int leftIndex = 0;
+        int rightIndex = size - 1;
 
-        while (left < right) {
-            // Swap data[left] and data[right]
-            int temp = data[left];
-            data[left] = data[right];
-            data[right] = temp;
-
-            left++;
-            right--;
+        while (leftIndex < rightIndex) {
+            int temp = data[leftIndex];
+            data[leftIndex] = data[rightIndex];
+            data[rightIndex] = temp;
+            leftIndex++;
+            rightIndex--;
         }
     }
 
-    // ──────────────────────────────────────────────
-    // UTILITY
-    // ──────────────────────────────────────────────
+    public int size() {
+        return size;
+    }
 
-    public int size() { return size; }
-    public boolean isEmpty() { return size == 0; }
+    public boolean isEmpty() {
+        return size == 0;
+    }
 
     private void validateIndex(int index) {
         if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException(
-                "Index " + index + " out of bounds for size " + size
-            );
+            throw new IndexOutOfBoundsException("Index " + index + " out of bounds for size " + size);
         }
     }
 
     @Override
     public String toString() {
-        if (size == 0) return "[]";
-
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < size; i++) {
-            sb.append(data[i]);
-            if (i < size - 1) sb.append(", ");
+        if (size == 0) {
+            return "[]";
         }
-        return sb.append("]").toString();
+        StringBuilder builder = new StringBuilder("[");
+        for (int index = 0; index < size; index++) {
+            builder.append(data[index]);
+            if (index < size - 1) {
+                builder.append(", ");
+            }
+        }
+        return builder.append("]").toString();
     }
 
-    // ──────────────────────────────────────────────
-    // DEMO
-    // ──────────────────────────────────────────────
-
     public static void main(String[] args) {
-        System.out.println("╔══════════════════════════════════╗");
-        System.out.println("║       STATIC ARRAY DEMO          ║");
-        System.out.println("╚══════════════════════════════════╝\n");
+        System.out.println("--- Static array demo ---");
 
-        StaticArray arr = new StaticArray(10);
+        StaticArray array = new StaticArray(10);
 
-        // Add elements
-        arr.add(10); arr.add(20); arr.add(30); arr.add(40); arr.add(50);
-        System.out.println("After adds:           " + arr);
+        array.add(10);
+        array.add(20);
+        array.add(30);
+        array.add(40);
+        array.add(50);
+        System.out.println("After add: " + array);
 
-        // Access
-        System.out.println("Get index 2:          " + arr.get(2));
+        System.out.println("Get index 2 -> " + array.get(2));
 
-        // Insert in the middle
-        arr.insertAt(2, 25);
-        System.out.println("After insertAt(2,25): " + arr);
+        array.insertAt(2, 25);
+        System.out.println("Insert 25 at index 2: " + array);
 
-        // Remove
-        int removed = arr.removeAt(3);
-        System.out.println("After removeAt(3)=" + removed + ": " + arr);
+        int removed = array.removeAt(3);
+        System.out.println("Remove index 3 -> " + removed + ". Current array: " + array);
 
-        // Linear search
-        System.out.println("LinearSearch(25):     index " + arr.linearSearch(25));
+        System.out.println("Linear search 25 -> index " + array.linearSearch(25));
+        System.out.println("Binary search 40 -> index " + array.binarySearch(40));
 
-        // Binary search on sorted array
-        System.out.println("BinarySearch(40):     index " + arr.binarySearch(40));
-
-        // Reverse
-        arr.reverse();
-        System.out.println("After reverse:        " + arr);
+        array.reverse();
+        System.out.println("After reverse: " + array);
     }
 }
