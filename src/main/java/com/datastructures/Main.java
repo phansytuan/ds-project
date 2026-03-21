@@ -14,48 +14,39 @@ import com.datastructures.heap.Heap;
 import com.datastructures.graph.Graph;
 
 /**
- * ============================================================
- * MAIN ENTRY POINT
- * Java Data Structures — Complete Interview Preparation Guide
- * ============================================================
- *
- * This class runs all data structure demonstrations.
- * You can also run each class individually (each has its own main()).
- *
- * HOW TO RUN:
- *   mvn compile
- *   mvn exec:java -Dexec.mainClass="com.datastructures.Main"
- *
- *   Or run individually:
- *   mvn exec:java -Dexec.mainClass="com.datastructures.array.StaticArray"
- * ============================================================
+ * Runs a demo of each data structure in order.
+ * <p>
+ * Each structure also has its own {@code main} method if you want to run one demo at a time.
+ * <p>
+ * From the project root:
+ * {@code mvn compile}
+ * {@code mvn exec:java -Dexec.mainClass="com.datastructures.Main"}
  */
 public class Main {
 
     public static void main(String[] args) {
         printBanner();
 
-        runSection("1. STATIC ARRAY",          () -> StaticArray.main(args));
-        runSection("2. DYNAMIC ARRAY",         () -> DynamicArray.main(args));
-        runSection("3. SINGLY LINKED LIST",    () -> SinglyLinkedList.main(args));
-        runSection("4. DOUBLY LINKED LIST",    () -> DoublyLinkedList.main(args));
-        runSection("5. STACK",                 () -> Stack.main(args));
-        runSection("6. QUEUE & DEQUE",         () -> Queue.main(args));
-        runSection("7. HASH TABLE",            () -> HashTable.main(args));
-        runSection("8. LRU CACHE",             () -> LRUCache.main(args));
-        runSection("9. BINARY TREE",           () -> BinaryTree.main(args));
-        runSection("10. BINARY SEARCH TREE",   () -> BinarySearchTree.main(args));
-        runSection("11. HEAP",                 () -> Heap.main(args));
-        runSection("12. GRAPH",                () -> Graph.main(args));
+        runSection("1. Static array", () -> StaticArray.main(args));
+        runSection("2. Dynamic array", () -> DynamicArray.main(args));
+        runSection("3. Singly linked list", () -> SinglyLinkedList.main(args));
+        runSection("4. Doubly linked list", () -> DoublyLinkedList.main(args));
+        runSection("5. Stack", () -> Stack.main(args));
+        runSection("6. Queue and deque", () -> Queue.main(args));
+        runSection("7. Hash table", () -> HashTable.main(args));
+        runSection("8. LRU cache", () -> LRUCache.main(args));
+        runSection("9. Binary tree", () -> BinaryTree.main(args));
+        runSection("10. Binary search tree", () -> BinarySearchTree.main(args));
+        runSection("11. Heap", () -> Heap.main(args));
+        runSection("12. Graph", () -> Graph.main(args));
 
         printComplexityTable();
     }
 
+    /** Runs one demo and prints a clear section title. */
     private static void runSection(String title, Runnable demo) {
-        System.out.println("\n");
-        System.out.println("████████████████████████████████████████████████████████");
-        System.out.println("   " + title);
-        System.out.println("████████████████████████████████████████████████████████");
+        System.out.println();
+        System.out.println("========== " + title + " ==========");
         System.out.println();
         try {
             demo.run();
@@ -65,66 +56,21 @@ public class Main {
     }
 
     private static void printBanner() {
-        System.out.println("""
-            ╔══════════════════════════════════════════════════════════════╗
-            ║                                                              ║
-            ║     JAVA DATA STRUCTURES — Interview Preparation Guide       ║
-            ║                                                              ║
-            ║  Data Structures Covered:                                    ║
-            ║   ✓ Array (Static & Dynamic)                                 ║
-            ║   ✓ Linked List (Singly & Doubly)                            ║
-            ║   ✓ Stack                                                    ║
-            ║   ✓ Queue & Deque                                            ║
-            ║   ✓ Hash Table + LRU Cache                                   ║
-            ║   ✓ Binary Tree                                              ║
-            ║   ✓ Binary Search Tree                                       ║
-            ║   ✓ Heap (Min & Max)                                         ║
-            ║   ✓ Graph (Adjacency List)                                   ║
-            ║                                                              ║
-            ╚══════════════════════════════════════════════════════════════╝
-            """);
+        System.out.println("Java data structures — learning demos");
+        System.out.println("Arrays, lists, stack, queue, hash table, trees, heap, graph.");
+        System.out.println();
     }
 
     private static void printComplexityTable() {
-        System.out.println("""
-
-            ████████████████████████████████████████████████████████
-               TIME COMPLEXITY CHEAT SHEET
-            ████████████████████████████████████████████████████████
-
-            ┌──────────────────┬─────────┬─────────┬─────────┬─────────┬────────┐
-            │ Data Structure   │ Access  │ Search  │ Insert  │ Delete  │ Space  │
-            ├──────────────────┼─────────┼─────────┼─────────┼─────────┼────────┤
-            │ Array            │  O(1)   │  O(n)   │  O(n)   │  O(n)   │  O(n)  │
-            │ Dynamic Array    │  O(1)   │  O(n)   │ O(1)*   │  O(n)   │  O(n)  │
-            │ Singly LinkedList│  O(n)   │  O(n)   │  O(1)** │  O(n)   │  O(n)  │
-            │ Doubly LinkedList│  O(n)   │  O(n)   │  O(1)** │ O(1)** │  O(n)  │
-            │ Stack            │  O(n)   │  O(n)   │  O(1)   │  O(1)   │  O(n)  │
-            │ Queue            │  O(n)   │  O(n)   │  O(1)   │  O(1)   │  O(n)  │
-            │ Hash Table       │   N/A   │  O(1)*  │  O(1)*  │  O(1)*  │  O(n)  │
-            │ Binary Tree      │  O(n)   │  O(n)   │  O(n)   │  O(n)   │  O(n)  │
-            │ BST (balanced)   │ O(logn) │ O(logn) │ O(logn) │ O(logn) │  O(n)  │
-            │ Min/Max Heap     │  O(1)†  │  O(n)   │ O(logn) │ O(logn) │  O(n)  │
-            │ Graph (Adj List) │   N/A   │ O(V+E)  │  O(1)   │  O(E)   │ O(V+E) │
-            └──────────────────┴─────────┴─────────┴─────────┴─────────┴────────┘
-
-            *  = amortized
-            ** = at head/tail with pointer
-            †  = only for min (min heap) or max (max heap)
-
-            WHEN TO USE WHAT:
-            ┌─────────────────────────────────────────────────────┐
-            │ Need O(1) access by index?      → Array             │
-            │ Need O(1) front/back insert?    → LinkedList/Deque  │
-            │ Need LIFO?                      → Stack             │
-            │ Need FIFO?                      → Queue             │
-            │ Need O(1) key lookup?           → HashMap           │
-            │ Need ordered data + fast ops?   → BST               │
-            │ Need min/max quickly?           → Heap              │
-            │ Need shortest path?             → BFS + Graph       │
-            │ Need top-K elements?            → Heap              │
-            │ Need LRU Cache?                 → HashMap + DLL     │
-            └─────────────────────────────────────────────────────┘
-            """);
+        System.out.println();
+        System.out.println("========== Time complexity (typical) ==========");
+        System.out.println("Static array:     get/set by index O(1); search O(n); insert/remove in middle O(n)");
+        System.out.println("Dynamic array:    add at end O(1) amortized; insert/remove in middle O(n)");
+        System.out.println("Linked list:      walk to index O(n); add/remove at ends O(1) with pointers");
+        System.out.println("Stack / queue:    push-pop or enqueue-dequeue O(1)");
+        System.out.println("Hash table:       get/put/remove average O(1); worst case O(n) if many collisions");
+        System.out.println("BST (balanced):   search/insert/delete O(log n); skewed tree degrades to O(n)");
+        System.out.println("Heap:             insert/remove root O(log n); peek min/max O(1)");
+        System.out.println("Graph BFS/DFS:    O(V + E) with V vertices and E edges");
     }
 }

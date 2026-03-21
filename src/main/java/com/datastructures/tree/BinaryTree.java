@@ -5,69 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * ============================================================
- * DATA STRUCTURE: Binary Tree
- * ============================================================
- *
- * CONCEPT:
- *   A tree is a hierarchical data structure. A BINARY TREE is
- *   a tree where each node has at most TWO children: left and right.
- *
- *   Anatomy:
- *          [1]         ← root (depth 0)
- *         /   \
- *       [2]   [3]      ← internal nodes (depth 1)
- *      /   \     \
- *    [4]   [5]   [6]   ← leaves (depth 2)
- *
- *   Terminology:
- *     Root   = topmost node (no parent)
- *     Leaf   = node with no children
- *     Height = longest path from root to a leaf
- *     Depth  = distance from root to a node
- *     Level  = set of all nodes at depth d
- *
- * TRAVERSAL ORDERS — this is crucial for interviews!
- *   Given tree:     [1]
- *                  /   \
- *                [2]   [3]
- *               /   \
- *             [4]   [5]
- *
- *   In-Order   (Left, Root, Right): 4 → 2 → 5 → 1 → 3
- *   Pre-Order  (Root, Left, Right): 1 → 2 → 4 → 5 → 3
- *   Post-Order (Left, Right, Root): 4 → 5 → 2 → 3 → 1
- *   Level-Order (BFS):              1 → 2 → 3 → 4 → 5
- *
- * REAL-WORLD USE CASES:
- *   - File system directory trees
- *   - HTML/XML DOM structure
- *   - Abstract Syntax Trees (ASTs) in compilers
- *   - Decision trees in ML
- *   - Game state trees (chess, minimax)
- *
- * TIME COMPLEXITY:
- *   All operations: O(n) for a general binary tree
- *   (BST gives us O(log n) for ordered operations)
- *
- * SPACE COMPLEXITY:
- *   O(n) for the tree itself
- *   O(h) for recursion stack, where h = height
- *     Balanced tree: h = O(log n)
- *     Skewed tree:   h = O(n)
- *
- * INTERVIEW TIPS:
- *   - Most tree problems are solved with DFS (recursion)
- *   - Always define the BASE CASE (null node) first
- *   - Level-order traversal = BFS with a queue
- *   - Know the 4 traversal orders cold
- * ============================================================
+ * A binary tree is a hierarchy where each node has at most a left and a right child.
+ * Unlike a binary search tree, values are not ordered left-to-right; this class focuses on shape and traversals.
  */
 public class BinaryTree {
-
-    // ──────────────────────────────────────────────
-    // INNER CLASS: TreeNode
-    // ──────────────────────────────────────────────
 
     public static class TreeNode {
         int val;
@@ -79,331 +20,283 @@ public class BinaryTree {
         }
     }
 
-    // ──────────────────────────────────────────────
-    // FIELDS
-    // ──────────────────────────────────────────────
+    TreeNode root;
 
-    TreeNode root; // Package-visible for BST subclass
-
-    // ──────────────────────────────────────────────
-    // TRAVERSALS
-    // ──────────────────────────────────────────────
-
-    /**
-     * IN-ORDER traversal: Left → Root → Right
-     * Special property: For a BST, this gives elements in SORTED ORDER!
-     * Time: O(n), Space: O(h)
-     */
+    /** Collects values in order: left subtree, then this node, then right subtree. */
     public List<Integer> inOrder() {
         List<Integer> result = new ArrayList<>();
-        inOrderHelper(root, result);
+        inOrderVisit(root, result);
         return result;
     }
 
-    private void inOrderHelper(TreeNode node, List<Integer> result) {
-        if (node == null) return; // BASE CASE: empty subtree
-        inOrderHelper(node.left, result);  // 1. Recurse LEFT
-        result.add(node.val);              // 2. Visit ROOT
-        inOrderHelper(node.right, result); // 3. Recurse RIGHT
+    private void inOrderVisit(TreeNode node, List<Integer> result) {
+        if (node == null) {
+            return;
+        }
+        inOrderVisit(node.left, result);
+        result.add(node.val);
+        inOrderVisit(node.right, result);
     }
 
-    /**
-     * PRE-ORDER traversal: Root → Left → Right
-     * Used to COPY or SERIALIZE a tree (root first so you can reconstruct).
-     * Time: O(n), Space: O(h)
-     */
+    /** Collects values in order: this node, then left subtree, then right subtree. */
     public List<Integer> preOrder() {
         List<Integer> result = new ArrayList<>();
-        preOrderHelper(root, result);
+        preOrderVisit(root, result);
         return result;
     }
 
-    private void preOrderHelper(TreeNode node, List<Integer> result) {
-        if (node == null) return;
-        result.add(node.val);              // 1. Visit ROOT first
-        preOrderHelper(node.left, result); // 2. Recurse LEFT
-        preOrderHelper(node.right, result);// 3. Recurse RIGHT
+    private void preOrderVisit(TreeNode node, List<Integer> result) {
+        if (node == null) {
+            return;
+        }
+        result.add(node.val);
+        preOrderVisit(node.left, result);
+        preOrderVisit(node.right, result);
     }
 
-    /**
-     * POST-ORDER traversal: Left → Right → Root
-     * Used to DELETE a tree (children before parent)
-     * or evaluate expression trees (operands before operator).
-     * Time: O(n), Space: O(h)
-     */
+    /** Collects values in order: left subtree, right subtree, then this node. */
     public List<Integer> postOrder() {
         List<Integer> result = new ArrayList<>();
-        postOrderHelper(root, result);
+        postOrderVisit(root, result);
         return result;
     }
 
-    private void postOrderHelper(TreeNode node, List<Integer> result) {
-        if (node == null) return;
-        postOrderHelper(node.left, result); // 1. Recurse LEFT
-        postOrderHelper(node.right, result);// 2. Recurse RIGHT
-        result.add(node.val);              // 3. Visit ROOT last
+    private void postOrderVisit(TreeNode node, List<Integer> result) {
+        if (node == null) {
+            return;
+        }
+        postOrderVisit(node.left, result);
+        postOrderVisit(node.right, result);
+        result.add(node.val);
     }
 
     /**
-     * LEVEL-ORDER (BFS) traversal: Level by level, left to right.
-     * Uses a Queue — the hallmark of BFS!
-     * Returns each level as a separate list.
-     * Time: O(n), Space: O(w) where w = max width of the tree
+     * Level order (breadth-first): visit top level left-to-right, then the next level, and so on.
+     * A queue holds the frontier of nodes waiting to be visited.
      */
     public List<List<Integer>> levelOrder() {
-        List<List<Integer>> result = new ArrayList<>();
-        if (root == null) return result;
+        List<List<Integer>> levels = new ArrayList<>();
+        if (root == null) {
+            return levels;
+        }
 
         LinkedList<TreeNode> queue = new LinkedList<>();
         queue.add(root);
 
         while (!queue.isEmpty()) {
-            int levelSize = queue.size(); // Number of nodes on this level
-            List<Integer> level = new ArrayList<>();
+            int nodesThisLevel = queue.size();
+            List<Integer> levelValues = new ArrayList<>();
 
-            for (int i = 0; i < levelSize; i++) {
-                TreeNode node = queue.poll(); // Remove from front of queue
-                level.add(node.val);
-
-                // Enqueue children for the NEXT level
-                if (node.left  != null) queue.add(node.left);
-                if (node.right != null) queue.add(node.right);
+            for (int count = 0; count < nodesThisLevel; count++) {
+                TreeNode node = queue.removeFirst();
+                levelValues.add(node.val);
+                if (node.left != null) {
+                    queue.add(node.left);
+                }
+                if (node.right != null) {
+                    queue.add(node.right);
+                }
             }
-            result.add(level);
+            levels.add(levelValues);
         }
-        return result;
+        return levels;
     }
 
-    // ──────────────────────────────────────────────
-    // CLASSIC TREE ALGORITHMS
-    // ──────────────────────────────────────────────
-
-    /**
-     * HEIGHT: The number of edges on the longest path from root to a leaf.
-     * Time: O(n) — must visit every node.
-     * Space: O(h) — recursion stack.
-     *
-     * Recurrence: height(node) = 1 + max(height(left), height(right))
-     * Base case:  height(null) = -1 (empty tree has height -1)
-     */
+    /** Longest path from root down to a leaf, measured in edges; empty tree is -1. */
     public int height() {
-        return heightHelper(root);
+        return heightOf(root);
     }
 
-    private int heightHelper(TreeNode node) {
-        if (node == null) return -1; // Empty subtree contributes -1
-        int leftHeight  = heightHelper(node.left);
-        int rightHeight = heightHelper(node.right);
+    private int heightOf(TreeNode node) {
+        if (node == null) {
+            return -1;
+        }
+        int leftHeight = heightOf(node.left);
+        int rightHeight = heightOf(node.right);
         return 1 + Math.max(leftHeight, rightHeight);
     }
 
-    /**
-     * IS BALANCED: True if the tree's height difference between any
-     * left and right subtrees is at most 1.
-     * Time: O(n) — optimized single-pass approach.
-     */
+    /** True if every node has left and right subtree heights differing by at most one. */
     public boolean isBalanced() {
-        return checkBalance(root) != -1;
+        return balancedHeight(root) != -1;
     }
 
     /**
-     * Returns the height of the subtree, or -1 if it's unbalanced.
-     * This elegantly combines height calculation + balance check in one pass.
+     * Returns the height of {@code node}'s subtree, or -1 if that subtree is unbalanced.
      */
-    private int checkBalance(TreeNode node) {
-        if (node == null) return 0;
+    private int balancedHeight(TreeNode node) {
+        if (node == null) {
+            return 0;
+        }
 
-        int leftHeight  = checkBalance(node.left);
-        if (leftHeight == -1) return -1; // Early exit if left is unbalanced
+        int leftHeight = balancedHeight(node.left);
+        if (leftHeight == -1) {
+            return -1;
+        }
 
-        int rightHeight = checkBalance(node.right);
-        if (rightHeight == -1) return -1; // Early exit if right is unbalanced
+        int rightHeight = balancedHeight(node.right);
+        if (rightHeight == -1) {
+            return -1;
+        }
 
-        if (Math.abs(leftHeight - rightHeight) > 1) return -1; // This node is unbalanced
-
+        if (Math.abs(leftHeight - rightHeight) > 1) {
+            return -1;
+        }
         return 1 + Math.max(leftHeight, rightHeight);
     }
 
-    /**
-     * MAX DEPTH: Number of nodes along the longest root-to-leaf path.
-     * Time: O(n), Space: O(h)
-     */
+    /** Number of nodes on the longest root-to-leaf path. */
     public int maxDepth() {
-        return maxDepthHelper(root);
+        return maxDepthOf(root);
     }
 
-    private int maxDepthHelper(TreeNode node) {
-        if (node == null) return 0;
-        return 1 + Math.max(maxDepthHelper(node.left), maxDepthHelper(node.right));
+    private int maxDepthOf(TreeNode node) {
+        if (node == null) {
+            return 0;
+        }
+        return 1 + Math.max(maxDepthOf(node.left), maxDepthOf(node.right));
     }
 
-    /**
-     * IS SAME TREE: Returns true if two trees have the same structure and values.
-     * Classic recursive problem — a great template.
-     * Time: O(n)
-     */
-    public static boolean isSameTree(TreeNode p, TreeNode q) {
-        if (p == null && q == null) return true;   // Both null → equal
-        if (p == null || q == null) return false;  // One null → not equal
-        if (p.val != q.val) return false;           // Different values
-
-        // Both nodes exist and have the same value → check children
-        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+    /** True if both trees have the same shape and values at every position. */
+    public static boolean isSameTree(TreeNode firstRoot, TreeNode secondRoot) {
+        if (firstRoot == null && secondRoot == null) {
+            return true;
+        }
+        if (firstRoot == null || secondRoot == null) {
+            return false;
+        }
+        if (firstRoot.val != secondRoot.val) {
+            return false;
+        }
+        return isSameTree(firstRoot.left, secondRoot.left)
+            && isSameTree(firstRoot.right, secondRoot.right);
     }
 
-    /**
-     * IS SYMMETRIC: Returns true if the tree is a mirror of itself.
-     * Input:    [1]          Input:    [1]
-     *          /   \                  /   \
-     *        [2]   [2]    vs        [2]   [2]
-     *       /  \  /  \              \       \
-     *      [3][4][4][3]             [3]      [3]
-     *      → true                   → false
-     * Time: O(n)
-     */
+    /** True if the tree is symmetric around its root (left mirror equals right). */
     public boolean isSymmetric() {
-        return isMirror(root, root);
+        return mirrors(root.left, root.right);
     }
 
-    private boolean isMirror(TreeNode left, TreeNode right) {
-        if (left == null && right == null) return true;
-        if (left == null || right == null) return false;
-        // Mirror: left.val == right.val
-        //         AND left.left mirrors right.right
-        //         AND left.right mirrors right.left
-        return left.val == right.val
-            && isMirror(left.left, right.right)
-            && isMirror(left.right, right.left);
+    private boolean mirrors(TreeNode leftSide, TreeNode rightSide) {
+        if (leftSide == null && rightSide == null) {
+            return true;
+        }
+        if (leftSide == null || rightSide == null) {
+            return false;
+        }
+        if (leftSide.val != rightSide.val) {
+            return false;
+        }
+        return mirrors(leftSide.left, rightSide.right)
+            && mirrors(leftSide.right, rightSide.left);
     }
 
-    /**
-     * INVERT (MIRROR) TREE: Flip the tree left-right.
-     * Input:   [4]         Output:  [4]
-     *         /   \                /   \
-     *       [2]   [7]           [7]   [2]
-     *      /  \  /  \          /  \  /  \
-     *    [1][3][6][9]        [9][6][3][1]
-     * Time: O(n)
-     */
+    /** Swaps every node's left and right child (mirror image of the tree). */
     public void invert() {
-        invertHelper(root);
+        invertUnder(root);
     }
 
-    private TreeNode invertHelper(TreeNode node) {
-        if (node == null) return null;
+    private TreeNode invertUnder(TreeNode node) {
+        if (node == null) {
+            return null;
+        }
 
-        // Recursively invert both subtrees
-        TreeNode left  = invertHelper(node.left);
-        TreeNode right = invertHelper(node.right);
-
-        // Swap left and right children
-        node.left  = right;
-        node.right = left;
+        TreeNode newLeft = invertUnder(node.right);
+        TreeNode newRight = invertUnder(node.left);
+        node.left = newLeft;
+        node.right = newRight;
         return node;
     }
 
-    /**
-     * PATH SUM: Does any root-to-leaf path sum to targetSum?
-     * Input: tree=[5,4,8,11,null,13,4,7,2], targetSum=22 → true (5+4+11+2)
-     * Time: O(n)
-     */
+    /** True if some root-to-leaf path sums to {@code targetSum}. */
     public boolean hasPathSum(int targetSum) {
-        return pathSumHelper(root, targetSum);
+        return hasPathSumFrom(root, targetSum);
     }
 
-    private boolean pathSumHelper(TreeNode node, int remaining) {
-        if (node == null) return false;
+    private boolean hasPathSumFrom(TreeNode node, int remaining) {
+        if (node == null) {
+            return false;
+        }
 
         remaining -= node.val;
 
-        // Leaf node: check if we've hit our target
-        if (node.left == null && node.right == null) {
+        boolean isLeaf = node.left == null && node.right == null;
+        if (isLeaf) {
             return remaining == 0;
         }
 
-        // Otherwise, check either subtree
-        return pathSumHelper(node.left, remaining)
-            || pathSumHelper(node.right, remaining);
+        return hasPathSumFrom(node.left, remaining)
+            || hasPathSumFrom(node.right, remaining);
     }
 
-    /**
-     * LOWEST COMMON ANCESTOR (LCA): Given two nodes p and q,
-     * find their lowest (deepest) common ancestor.
-     * Time: O(n)
-     */
+    /** Lowest common ancestor of nodes {@code p} and {@code q} (same reference identity as in the tree). */
     public TreeNode lowestCommonAncestor(TreeNode p, TreeNode q) {
-        return lcaHelper(root, p, q);
+        return lowestCommonAncestorUnder(root, p, q);
     }
 
-    private TreeNode lcaHelper(TreeNode node, TreeNode p, TreeNode q) {
-        if (node == null) return null;        // Fell off the tree
-        if (node == p || node == q) return node; // Found one of the targets
+    private TreeNode lowestCommonAncestorUnder(TreeNode node, TreeNode p, TreeNode q) {
+        if (node == null) {
+            return null;
+        }
+        if (node == p || node == q) {
+            return node;
+        }
 
-        TreeNode left  = lcaHelper(node.left,  p, q);
-        TreeNode right = lcaHelper(node.right, p, q);
+        TreeNode leftResult = lowestCommonAncestorUnder(node.left, p, q);
+        TreeNode rightResult = lowestCommonAncestorUnder(node.right, p, q);
 
-        if (left != null && right != null) return node; // p is in one subtree, q in the other
-        return left != null ? left : right; // Both in the same subtree
+        if (leftResult != null && rightResult != null) {
+            return node;
+        }
+        if (leftResult != null) {
+            return leftResult;
+        }
+        return rightResult;
     }
 
-    // ──────────────────────────────────────────────
-    // UTILITY
-    // ──────────────────────────────────────────────
-
-    /** Print tree visually (simple, works for small trees). */
+    /** Prints a small ASCII-style picture of the tree. */
     public void printTree() {
-        printHelper(root, "", true);
+        printSubtree(root, "", true);
     }
 
-    private void printHelper(TreeNode node, String indent, boolean isRight) {
-        if (node == null) return;
-        System.out.println(indent + (isRight ? "└── " : "├── ") + node.val);
-        printHelper(node.left,  indent + (isRight ? "    " : "│   "), false);
-        printHelper(node.right, indent + (isRight ? "    " : "│   "), true);
+    private void printSubtree(TreeNode node, String indent, boolean isRightChild) {
+        if (node == null) {
+            return;
+        }
+        System.out.println(indent + (isRightChild ? "└── " : "├── ") + node.val);
+        printSubtree(node.left, indent + (isRightChild ? "    " : "│   "), false);
+        printSubtree(node.right, indent + (isRightChild ? "    " : "│   "), true);
     }
-
-    // ──────────────────────────────────────────────
-    // DEMO
-    // ──────────────────────────────────────────────
 
     public static void main(String[] args) {
-        System.out.println("╔══════════════════════════════════╗");
-        System.out.println("║       BINARY TREE DEMO           ║");
-        System.out.println("╚══════════════════════════════════╝\n");
+        System.out.println("--- Binary tree demo ---");
 
-        /*
-         *     Build this tree:
-         *           [1]
-         *          /   \
-         *        [2]   [3]
-         *       /   \     \
-         *     [4]   [5]   [6]
-         */
         BinaryTree tree = new BinaryTree();
         tree.root = new TreeNode(1);
-        tree.root.left  = new TreeNode(2);
+        tree.root.left = new TreeNode(2);
         tree.root.right = new TreeNode(3);
-        tree.root.left.left  = new TreeNode(4);
+        tree.root.left.left = new TreeNode(4);
         tree.root.left.right = new TreeNode(5);
         tree.root.right.right = new TreeNode(6);
 
-        System.out.println("Tree structure:");
+        System.out.println("Shape:");
         tree.printTree();
 
-        System.out.println("\nIn-Order    (L→Root→R): " + tree.inOrder());
-        System.out.println("Pre-Order   (Root→L→R): " + tree.preOrder());
-        System.out.println("Post-Order  (L→R→Root): " + tree.postOrder());
-        System.out.println("Level-Order (BFS):       " + tree.levelOrder());
+        System.out.println("In-order:    " + tree.inOrder());
+        System.out.println("Pre-order:   " + tree.preOrder());
+        System.out.println("Post-order:  " + tree.postOrder());
+        System.out.println("Level-order: " + tree.levelOrder());
 
-        System.out.println("\nHeight:       " + tree.height());
-        System.out.println("Max Depth:    " + tree.maxDepth());
-        System.out.println("Is Balanced:  " + tree.isBalanced());
-        System.out.println("Is Symmetric: " + tree.isSymmetric());
-        System.out.println("Has path 1→2→5 (sum=8)? " + tree.hasPathSum(8));
+        System.out.println("Height: " + tree.height());
+        System.out.println("Max depth: " + tree.maxDepth());
+        System.out.println("Balanced? " + tree.isBalanced());
+        System.out.println("Symmetric? " + tree.isSymmetric());
+        System.out.println("Path sum 8 along 1->2->5? " + tree.hasPathSum(8));
 
-        System.out.println("\n--- Invert Tree ---");
+        System.out.println();
+        System.out.println("Invert (mirror) tree.");
         tree.invert();
-        System.out.println("After invert, In-Order: " + tree.inOrder());
+        System.out.println("In-order after invert: " + tree.inOrder());
         tree.printTree();
     }
 }

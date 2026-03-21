@@ -1,81 +1,27 @@
 package com.datastructures.hashtable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+
 /**
- * ============================================================
- * DATA STRUCTURE: Hash Table (HashMap)
-
- * Hash Table là cấu trúc dữ liệu lưu trữ key–value.
- * Nó dùng hash function để chuyển key thành index trong mảng, nhờ đó việc tìm kiếm, thêm và xóa có độ phức tạp trung bình O(1).
- * Trong Java, HashMap là implementation
- * ============================================================
-
- * CONCEPT:
- *   A hash table maps Keys --> to Values for O(1) average-case lookup, insertion, and deletion. It's one of the most
- *   powerful and frequently used data structures.
-
- * HOW IT WORKS:
- *   1. Compute hash(key) → an integer
- *   2. Map that integer to a bucket index: index = hash % capacity
- *   3. Store (key, value) in that bucket
-
- *   Key="name"  → hash() → 4382 → 4382 % 16 = 14 → bucket[14]
- *   Key="age"   → hash() → 9103 → 9103 % 16 = 15 → bucket[15]
- *   Key="city"  → hash() → 4382 → 4382 % 16 = 14 → COLLISION!
-
- * COLLISION RESOLUTION (this implementation: Separate Chaining):
- *   Each bucket holds a linked list of entries.
- *   Collisions are handled by adding to the list.
-
- *   bucket[14] → [("name","Alice")] → [("city","NY")] → null
-
- *   Alternative: Open Addressing (linear/quadratic probing)
-
- * LOAD FACTOR & REHASHING:
- *   load_factor = size / capacity
- *   When load_factor > threshold (e.g., 0.75), we rehash:
- *   double capacity & re-insert all entries.
- *   This keeps average chain length low → O(1) average operations.
-
- * REAL-WORLD USE CASES:
- *   - Caching / memoization (most common!)
- *   - Counting frequencies (word count, anagram detection)
- *   - Two-sum / complement lookup
- *   - Deduplication (finding duplicates)
- *   - Symbol tables in compilers
-
- * TIME COMPLEXITY (average):
- *   Put    : O(1) amortized
- *   Get    : O(1) average
- *   Remove : O(1) average
- *   Worst case (many collisions): O(n) — bad hash function!
-
- * SPACE COMPLEXITY: O(n)
-
- * INTERVIEW TIPS:
- *   - Hash maps appear in ~60% of coding problems
- *   - Common patterns: frequency counting, grouping, complement lookup
- *   - Know how to use Java's HashMap, HashSet from memory
- *   - Be ready to explain collision resolution strategies
- * ============================================================
+ * A hash table stores key–value pairs. A hash function turns each key into an array index so you can jump
+ * straight to the right bucket. Collisions (two keys mapping to the same bucket) are handled by chaining:
+ * each bucket is a short linked list of entries.
  */
 public class HashTable<K, V> {
 
     private static final int DEFAULT_CAPACITY = 16;
     private static final double LOAD_FACTOR_THRESHOLD = 0.75;
+    /** Clears the sign bit so modulo always gives a non-negative bucket index. */
     private static final int NON_NEGATIVE_MASK = 0x7FFFFFFF;
 
-    // ──────────────────────────────────────────────
-    // INNER CLASS: Entry (key-value pair node)
-    // ──────────────────────────────────────────────
-
-    /**
-     * Each bucket in our table is a linked list of Entry objects.
-     * Multiple entries in the same bucket = collision via chaining.
-     */
     private static class Entry<K, V> {
         final K key;
         V value;
-        Entry<K, V> next; // Next entry in the same bucket (for chaining)
+        Entry<K, V> next;
 
         Entry(K key, V value) {
             this.key = key;
@@ -84,305 +30,245 @@ public class HashTable<K, V> {
         }
     }
 
-    // ──────────────────────────────────────────────
-    // FIELDS
-    // ──────────────────────────────────────────────
-
-    private Entry<K, V>[] buckets; // Array of linked list heads
-    private int size;              // Number of key-value pairs
-    private int capacity;          // Number of buckets
+    private Entry<K, V>[] buckets;
+    private int entryCount;
+    private int bucketCount;
 
     @SuppressWarnings("unchecked")
     public HashTable() {
-        this.capacity = DEFAULT_CAPACITY;
-        this.buckets = new Entry[capacity];
-        this.size = 0;
+        this.bucketCount = DEFAULT_CAPACITY;
+        this.buckets = new Entry[bucketCount];
+        this.entryCount = 0;
     }
 
-    // ──────────────────────────────────────────────
-    // HASHING
-    // ──────────────────────────────────────────────
-
     /**
-     * Converts a key into a bucket index.
-
-     * Steps:
-     *  1. key.hashCode() → raw hash (can be negative!)
-     *  2. Apply secondary mixing to distribute bits more evenly
-     *  3. Modulo capacity to get a valid bucket index
-
-     * Why mask with 0x7FFFFFFF ? Because Java's % on negative numbers returns a negative result. This clears the sign bit.
+     * Maps a key to a bucket index: hash code, optional mixing, then {@code % bucketCount}.
      */
     private int getBucketIndex(K key) {
-        if (key == null) return 0; // Null keys go to bucket 0
-
-        int hash = key.hashCode();
-        // Secondary hash mixing (reduces clustering from bad hashCode()s)
-        hash = hash ^ (hash >>> 16);
-        // Map to [0, capacity) — always non-negative
-        return (hash & NON_NEGATIVE_MASK) % capacity;
-    }
-
-    // ──────────────────────────────────────────────
-    // CORE OPERATIONS
-    // ──────────────────────────────────────────────
-
-    /**
-     * PUT: Insert or update a key-value pair.
-     * Time: O(1) average, O(n) worst case
-
-     * If the key already exists, update its value.
-     * If the bucket is occupied by a different key → chain it.
-     */
-    public void put(K key, V value) {
-        int index = getBucketIndex(key);
-        Entry<K, V> head = buckets[index];
-
-        // Walk the chain at this bucket looking for an existing key
-        Entry<K, V> curr = head;
-        while (curr != null) {
-            if (keysEqual(curr.key, key)) {
-                curr.value = value; // Key exists → update value
-                return;
-            }
-            curr = curr.next;
+        if (key == null) {
+            return 0;
         }
 
-        // Key not found → prepend new entry at head of chain (O(1))
-        Entry<K, V> newEntry = new Entry<>(key, value);
-        newEntry.next = head;       // New entry points to old chain head
-        buckets[index] = newEntry;  // Bucket now starts at new entry
-        size++;
+        int hash = key.hashCode();
+        hash = hash ^ (hash >>> 16);
+        return (hash & NON_NEGATIVE_MASK) % bucketCount;
+    }
 
-        // Rehash if load factor exceeds threshold
-        if ((double) size / capacity > LOAD_FACTOR_THRESHOLD) {
+    /** Inserts a new pair or updates the value if the key already exists. Rehashes when the table gets too full. */
+    public void put(K key, V value) {
+        int bucketIndex = getBucketIndex(key);
+        Entry<K, V> head = buckets[bucketIndex];
+
+        Entry<K, V> current = head;
+        while (current != null) {
+            if (keysEqual(current.key, key)) {
+                current.value = value;
+                return;
+            }
+            current = current.next;
+        }
+
+        Entry<K, V> newEntry = new Entry<>(key, value);
+        newEntry.next = head;
+        buckets[bucketIndex] = newEntry;
+        entryCount++;
+
+        double loadFactor = (double) entryCount / bucketCount;
+        if (loadFactor > LOAD_FACTOR_THRESHOLD) {
             rehash();
         }
     }
 
-    /**
-     * GET: Retrieve value by key.
-     * Time: O(1) average
-     */
+    /** Returns the value for {@code key}, or null if the key is missing. */
     public V get(K key) {
-        int index = getBucketIndex(key);
-        Entry<K, V> curr = buckets[index];
+        int bucketIndex = getBucketIndex(key);
+        Entry<K, V> current = buckets[bucketIndex];
 
-        while (curr != null) {
-            if (keysEqual(curr.key, key)) return curr.value;
-            curr = curr.next;
-        }
-        return null; // Key not found
-    }
-
-    /**
-     * REMOVE: Delete a key-value pair.
-     * Time: O(1) average
-
-     * Must re-link the chain, skipping the removed entry.
-     */
-    public V remove(K key) {
-        int index = getBucketIndex(key);
-        Entry<K, V> curr = buckets[index];
-        Entry<K, V> prev = null;
-
-        while (curr != null) {
-            if (keysEqual(curr.key, key)) {
-                // Found it! Re-link around curr.
-                if (prev == null) {
-                    buckets[index] = curr.next; // Removing head of chain
-                } else {
-                    prev.next = curr.next;       // Removing from middle/end
-                }
-                size--;
-                return curr.value;
+        while (current != null) {
+            if (keysEqual(current.key, key)) {
+                return current.value;
             }
-            prev = curr;
-            curr = curr.next;
+            current = current.next;
         }
-        return null; // Key not found
+        return null;
     }
 
-    /** Returns true if the key exists in the table. */
+    /** Removes the key and returns its value, or null if it was not present. */
+    public V remove(K key) {
+        int bucketIndex = getBucketIndex(key);
+        Entry<K, V> current = buckets[bucketIndex];
+        Entry<K, V> previous = null;
+
+        while (current != null) {
+            if (keysEqual(current.key, key)) {
+                if (previous == null) {
+                    buckets[bucketIndex] = current.next;
+                } else {
+                    previous.next = current.next;
+                }
+                entryCount--;
+                return current.value;
+            }
+            previous = current;
+            current = current.next;
+        }
+        return null;
+    }
+
     public boolean containsKey(K key) {
-        int index = getBucketIndex(key);
-        Entry<K, V> curr = buckets[index];
-        while (curr != null) {
-            if (keysEqual(curr.key, key)) return true;
-            curr = curr.next;
+        int bucketIndex = getBucketIndex(key);
+        Entry<K, V> current = buckets[bucketIndex];
+        while (current != null) {
+            if (keysEqual(current.key, key)) {
+                return true;
+            }
+            current = current.next;
         }
         return false;
     }
 
-    // ──────────────────────────────────────────────
-    // REHASHING
-    // ──────────────────────────────────────────────
-
     /**
-     * Rehash: doubles capacity & re-inserts all entries.
-     * This is triggered when load factor > 0.75.
-     * Time: O(n) — but amortized O(1) per put operation.
-
-     * Why do we need this?
-     *   More entries in each bucket → longer chains → slower lookup.
-     *   By doubling capacity, we spread entries across more buckets,
-     *   keeping average chain length < 1.
+     * Doubles the number of buckets and puts every entry back using fresh bucket indices.
      */
     @SuppressWarnings("unchecked")
     private void rehash() {
-        int oldCapacity = capacity;
-        capacity *= 2;
-        Entry<K, V>[] newBuckets = new Entry[capacity];
+        int newBucketCount = bucketCount * 2;
+        Entry<K, V>[] newBuckets = new Entry[newBucketCount];
 
-        // Re-insert every entry into the new, larger table
-        for (Entry<K, V> head : buckets) {
-            Entry<K, V> curr = head;
-            while (curr != null) {
-                Entry<K, V> next = curr.next; // Save before we overwrite it
+        Entry<K, V>[] oldBuckets = buckets;
+        int oldBucketCount = bucketCount;
 
-                // Recompute index for the new (doubled) capacity
-                int newIndex = getBucketIndex(curr.key);
+        bucketCount = newBucketCount;
+        buckets = newBuckets;
 
-                // Prepend to new bucket (O(1))
-                curr.next = newBuckets[newIndex];
-                newBuckets[newIndex] = curr;
-
-                curr = next;
+        for (int bucketIndex = 0; bucketIndex < oldBucketCount; bucketIndex++) {
+            Entry<K, V> current = oldBuckets[bucketIndex];
+            while (current != null) {
+                Entry<K, V> next = current.next;
+                int newIndex = getBucketIndex(current.key);
+                current.next = newBuckets[newIndex];
+                newBuckets[newIndex] = current;
+                current = next;
             }
         }
-
-        buckets = newBuckets;
     }
 
-    // ──────────────────────────────────────────────
-    // UTILITY
-    // ──────────────────────────────────────────────
-
-    /** Null-safe key comparison. */
-    private boolean keysEqual(K a, K b) {
-        if (a == null) return b == null;
-        return a.equals(b);
+    private boolean keysEqual(K first, K second) {
+        if (first == null) {
+            return second == null;
+        }
+        return first.equals(second);
     }
 
-    public int size() { return size; }
-    public boolean isEmpty() { return size == 0; }
+    public int size() {
+        return entryCount;
+    }
 
-    /** Shows each bucket & its chain — great for debugging. */
+    public boolean isEmpty() {
+        return entryCount == 0;
+    }
+
+    /** Prints non-empty buckets so you can see chaining. */
     public void printBuckets() {
-        System.out.println("HashTable internals (capacity=" + capacity + ", size=" + size + "):");
-        for (int i = 0; i < capacity; i++) {
-            if (buckets[i] != null) {
-                System.out.print("  bucket[" + i + "]: ");
-                Entry<K, V> curr = buckets[i];
-                while (curr != null) {
-                    System.out.print("[" + curr.key + "=" + curr.value + "]");
-                    if (curr.next != null) System.out.print(" → ");
-                    curr = curr.next;
-                }
-                System.out.println();
+        System.out.println("Buckets (count=" + bucketCount + ", entries=" + entryCount + "):");
+        for (int bucketIndex = 0; bucketIndex < bucketCount; bucketIndex++) {
+            if (buckets[bucketIndex] == null) {
+                continue;
             }
+            System.out.print("  [" + bucketIndex + "]: ");
+            Entry<K, V> current = buckets[bucketIndex];
+            while (current != null) {
+                System.out.print(current.key + "=" + current.value);
+                if (current.next != null) {
+                    System.out.print(" -> ");
+                }
+                current = current.next;
+            }
+            System.out.println();
         }
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("{");
-        boolean first = true;
-        for (Entry<K, V> head : buckets) {
-            Entry<K, V> curr = head;
-            while (curr != null) {
-                if (!first) sb.append(", ");
-                sb.append(curr.key).append("=").append(curr.value);
-                first = false;
-                curr = curr.next;
+        StringBuilder builder = new StringBuilder("{");
+        boolean firstPair = true;
+        for (int bucketIndex = 0; bucketIndex < bucketCount; bucketIndex++) {
+            Entry<K, V> current = buckets[bucketIndex];
+            while (current != null) {
+                if (!firstPair) {
+                    builder.append(", ");
+                }
+                builder.append(current.key).append("=").append(current.value);
+                firstPair = false;
+                current = current.next;
             }
         }
-        return sb.append("}").toString();
+        return builder.append("}").toString();
     }
 
-    // ══════════════════════════════════════════════
-    // CLASSIC INTERVIEW PROBLEMS USING HASH TABLES
-    // ══════════════════════════════════════════════
+    /** Classic pattern: for each number, check whether (target - number) was seen already. */
+    public static int[] twoSum(int[] numbers, int target) {
+        HashMap<Integer, Integer> indexByValue = new HashMap<>();
 
-    /**
-     * PROBLEM 1: Two Sum
-     * Given an array & target, return indices of 2 numbers that add to target.
-     * Input: nums=[2,7,11,15], target=9 → [0,1] (because 2+7=9)
-
-     * Approach: Store each number's index in a map.
-     * For each num, check if (target - num) is already in the map.
-     * Time: O(n), Space: O(n)
-     */
-    public static int[] twoSum(int[] nums, int target) {
-        java.util.HashMap<Integer, Integer> map = new java.util.HashMap<>();
-
-        for (int i = 0; i < nums.length; i++) {
-            int complement = target - nums[i];
-            if (map.containsKey(complement)) {
-                return new int[]{map.get(complement), i};
+        for (int index = 0; index < numbers.length; index++) {
+            int value = numbers[index];
+            int complement = target - value;
+            if (indexByValue.containsKey(complement)) {
+                int earlierIndex = indexByValue.get(complement);
+                return new int[]{earlierIndex, index};
             }
-            map.put(nums[i], i); // Store this number's index
+            indexByValue.put(value, index);
         }
-        return new int[]{-1, -1}; // No solution
+        return new int[]{-1, -1};
     }
 
-    /**
-     * PROBLEM 2: Group Anagrams
-     * Group strings that are anagrams of each other.
-     * Input: ["eat","tea","tan","ate","nat","bat"]
-     * Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
+    /** Anagrams sort to the same letter sequence; group words that share that sorted key. */
+    public static List<List<String>> groupAnagrams(String[] words) {
+        HashMap<String, List<String>> groups = new HashMap<>();
 
-     * Key insight: 2 words are anagrams if their SORTED letters are equal.
-     * Use the sorted string as the map KEY.
-     * Time: O(n * k log k) where k is the max word length
-     */
-    public static java.util.List<java.util.List<String>> groupAnagrams(String[] strs) {
-        java.util.HashMap<String, java.util.List<String>> map = new java.util.HashMap<>();
+        for (int index = 0; index < words.length; index++) {
+            String word = words[index];
+            char[] letters = word.toCharArray();
+            Arrays.sort(letters);
+            String key = new String(letters);
 
-        for (String word : strs) {
-            char[] chars = word.toCharArray();
-            java.util.Arrays.sort(chars);   // Sort letters → canonical form
-            String key = new String(chars); // "eat" → "aet", "tea" → "aet"
-
-            map.computeIfAbsent(key, k -> new java.util.ArrayList<>()).add(word);
+            if (!groups.containsKey(key)) {
+                groups.put(key, new ArrayList<>());
+            }
+            groups.get(key).add(word);
         }
 
-        return new java.util.ArrayList<>(map.values());
+        return new ArrayList<>(groups.values());
     }
 
     /**
-     * PROBLEM 3: Longest Consecutive Sequence
-     * Find the length of the longest sequence of consecutive integers.
-     * Input: [100, 4, 200, 1, 3, 2] → 4  (sequence: 1,2,3,4)
-
-     * Key insight: Only START counting from a sequence's beginning.
-     * A number n is a start if (n-1) is NOT in the set.
-     * Time: O(n), Space: O(n)
+     * Longest run of consecutive integers: put all numbers in a set, then only start counting from a true start
+     * (a number whose predecessor is not in the set).
      */
-    public static int longestConsecutive(int[] nums) {
-        java.util.HashSet<Integer> set = new java.util.HashSet<>();
-        for (int n : nums) set.add(n);
+    public static int longestConsecutive(int[] numbers) {
+        HashSet<Integer> set = new HashSet<>();
+        for (int index = 0; index < numbers.length; index++) {
+            set.add(numbers[index]);
+        }
 
-        int longest = 0;
-
-        for (int n : set) {
-            if (!set.contains(n - 1)) { // n is the start of a sequence
-                int length = 1;
-                while (set.contains(n + length)) length++;
-                longest = Math.max(longest, length);
+        int bestLength = 0;
+        for (int value : set) {
+            if (set.contains(value - 1)) {
+                continue;
+            }
+            int length = 1;
+            while (set.contains(value + length)) {
+                length++;
+            }
+            if (length > bestLength) {
+                bestLength = length;
             }
         }
-        return longest;
+        return bestLength;
     }
-
-    // ──────────────────────────────────────────────
-    // DEMO
-    // ──────────────────────────────────────────────
 
     public static void main(String[] args) {
-        System.out.println("╔══════════════════════════════════╗");
-        System.out.println("║        HASH TABLE DEMO           ║");
-        System.out.println("╚══════════════════════════════════╝\n");
+        System.out.println("--- Hash table demo ---");
 
         HashTable<String, Integer> table = new HashTable<>();
         table.put("Alice", 30);
@@ -391,29 +277,28 @@ public class HashTable<K, V> {
         table.put("Diana", 28);
         System.out.println("After puts: " + table);
 
-        System.out.println("get('Bob')     = " + table.get("Bob"));
-        System.out.println("get('Eve')     = " + table.get("Eve"));  // null
-        System.out.println("containsKey?   " + table.containsKey("Alice"));
+        System.out.println("get(\"Bob\") -> " + table.get("Bob"));
+        System.out.println("get(\"Eve\") -> " + table.get("Eve"));
+        System.out.println("containsKey(\"Alice\") -> " + table.containsKey("Alice"));
 
-        table.put("Alice", 31); // Update
-        System.out.println("After update Alice→31: " + table);
+        table.put("Alice", 31);
+        System.out.println("Put Alice again (update age): " + table);
 
         table.remove("Bob");
         System.out.println("After remove Bob: " + table);
-
         table.printBuckets();
 
-        System.out.println("\n--- Two Sum ---");
+        System.out.println();
         int[] nums = {2, 7, 11, 15};
-        int[] result = twoSum(nums, 9);
-        System.out.println("twoSum([2,7,11,15], 9) = [" + result[0] + ", " + result[1] + "]");
+        int[] pair = twoSum(nums, 9);
+        System.out.println("Two sum indices for target 9 -> [" + pair[0] + ", " + pair[1] + "]");
 
-        System.out.println("\n--- Group Anagrams ---");
+        System.out.println();
         String[] words = {"eat", "tea", "tan", "ate", "nat", "bat"};
-        System.out.println("groupAnagrams: " + groupAnagrams(words));
+        System.out.println("Group anagrams -> " + groupAnagrams(words));
 
-        System.out.println("\n--- Longest Consecutive Sequence ---");
+        System.out.println();
         int[] seq = {100, 4, 200, 1, 3, 2};
-        System.out.println("longestConsecutive([100,4,200,1,3,2]) = " + longestConsecutive(seq));
+        System.out.println("Longest consecutive run length -> " + longestConsecutive(seq));
     }
 }
