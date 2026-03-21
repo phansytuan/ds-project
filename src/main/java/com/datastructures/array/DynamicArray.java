@@ -2,16 +2,18 @@ package com.datastructures.array;
 
 /**
  * A dynamic array keeps elements in a backing array. When it runs out of room, it allocates a larger array,
- * copies the elements over, and continues. Doubling the capacity keeps the average cost of an add-at-end O(1).
+ *  copies the elements over, & continues.
+ *  Doubling the capacity keeps the average cost of an add-at-end O(1).
  * <p>
- * {@code size} is how many elements you are using; {@code capacity} is the length of the backing array.
+ * {@code size} is how many elements you are using;
+ * {@code capacity} is the length of the backing array.
  */
 @SuppressWarnings("unchecked")
 public class DynamicArray<T> {
 
     private static final int DEFAULT_CAPACITY = 4;
 
-    private Object[] data;
+    private Object[] data; // [] data is a DynamicArray
     private int size;
 
     public DynamicArray() {
@@ -20,9 +22,7 @@ public class DynamicArray<T> {
     }
 
     public DynamicArray(int initialCapacity) {
-        if (initialCapacity <= 0) {
-            throw new IllegalArgumentException("Capacity must be > 0");
-        }
+        if (initialCapacity <= 0) { throw new IllegalArgumentException("Capacity must be > 0"); }
         this.data = new Object[initialCapacity];
         this.size = 0;
     }
@@ -35,12 +35,10 @@ public class DynamicArray<T> {
     }
 
     /**
-     * Inserts {@code value} at {@code index} and shifts the rest to the right.
+     * Inserts {@code value} at {@code index} & shifts the rest to the right.
      */
     public void add(int index, T value) {
-        if (index < 0 || index > size) {
-            throw new IndexOutOfBoundsException("Index: " + index);
-        }
+        if (index < 0 || index > size) { throw new IndexOutOfBoundsException("Index: " + index); }
         ensureCapacity();
 
         for (int slot = size; slot > index; slot--) {
@@ -55,8 +53,7 @@ public class DynamicArray<T> {
         validateIndex(index);
         return (T) data[index];
     }
-
-    /** Replaces the element at {@code index} and returns the old value. */
+    /** Replaces the element at {@code index} & returns the old value. */
     public T set(int index, T value) {
         validateIndex(index);
         T oldValue = (T) data[index];
@@ -64,7 +61,9 @@ public class DynamicArray<T> {
         return oldValue;
     }
 
-    /** Removes the element at {@code index} and shifts the rest left. May shrink the backing array when very sparse. */
+    /** Removes the element at {@code index} & shifts the rest left.
+     *  May shrink the backing array when very sparse.
+     */
     public T remove(int index) {
         validateIndex(index);
         T removedValue = (T) data[index];
@@ -90,6 +89,7 @@ public class DynamicArray<T> {
     /** Returns the first index of {@code value}, or -1. */
     public int indexOf(T value) {
         for (int index = 0; index < size; index++) {
+
             boolean bothNull = value == null && data[index] == null;
             boolean equalNonNull = value != null && value.equals(data[index]);
             if (bothNull || equalNonNull) {
@@ -100,7 +100,7 @@ public class DynamicArray<T> {
     }
 
     /**
-     * If the backing array is full, allocate a new array twice as large and copy elements over.
+     * If the backing array is full, allocate a new array twice as large & copy elements over.
      */
     private void ensureCapacity() {
         if (size < data.length) {

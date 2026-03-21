@@ -1,17 +1,18 @@
 package com.datastructures.array;
 
 /**
- * A fixed-size array stores elements in consecutive slots. You pick the capacity once;
+ * A fixed-size array stores elements in consecutive slots (memory location). You pick the capacity once;
  * the logical {@code size} grows as you add values until the array is full.
  * <p>
- * Index access is O(1). Inserting or removing in the middle needs shifting neighbors, so that is O(n).
+ * Index access is O(1).
+ * Inserting / removing in the middle needs shifting neighbors, so that is O(n).
  */
 public class StaticArray {
 
-    private final int[] data;
+    private int[] data; // [] data is a StaticArray
     private int size;
 
-    /** Creates an empty array that can hold up to {@code capacity} integers. */
+    /** constructor - Creates an empty array that can hold up to {@code capacity} integers. */
     public StaticArray(int capacity) {
         this.data = new int[capacity];
         this.size = 0;
@@ -19,9 +20,7 @@ public class StaticArray {
 
     /** Appends {@code value} at the next free slot. Throws if the array is full. */
     public void add(int value) {
-        if (size >= data.length) {
-            throw new IllegalStateException("Array is full. Capacity: " + data.length);
-        }
+        if (size >= data.length) { throw new IllegalStateException("Array is full. Capacity: " + data.length); }
         data[size] = value;
         size++;
     }
@@ -31,7 +30,6 @@ public class StaticArray {
         validateIndex(index);
         return data[index];
     }
-
     /** Overwrites the value at {@code index}. */
     public void set(int index, int value) {
         validateIndex(index);
@@ -39,17 +37,14 @@ public class StaticArray {
     }
 
     /**
-     * Inserts {@code value} at {@code index} and shifts everything from that index to the right.
+     * Inserts {@code value} at {@code index} & shifts everything from that index to the right.
      * <p>
      * Example: [10, 20, 40, 50] insert 30 at index 2 → [10, 20, 30, 40, 50]
      */
     public void insertAt(int index, int value) {
-        if (size >= data.length) {
-            throw new IllegalStateException("Array is full!");
-        }
-        if (index < 0 || index > size) {
-            throw new IndexOutOfBoundsException("Index: " + index);
-        }
+
+        if (size >= data.length) { throw new IllegalStateException("Array is full!"); }
+        if (index < 0 || index > size) { throw new IndexOutOfBoundsException("Index: " + index); }
 
         for (int slot = size; slot > index; slot--) {
             data[slot] = data[slot - 1];
@@ -59,7 +54,7 @@ public class StaticArray {
     }
 
     /**
-     * Removes the value at {@code index} and shifts everything after it left by one slot.
+     * Removes the value at {@code index} & shifts everything after it left <- by 1 slot.
      * <p>
      * Example: [10, 20, 30, 40, 50] remove index 2 → [10, 20, 40, 50]
      */
@@ -76,7 +71,7 @@ public class StaticArray {
         return removedValue;
     }
 
-    /** Scans from the start; returns the index of {@code value}, or -1 if not found. */
+    /** linear search = Iterate through a collection one element at a time */
     public int linearSearch(int value) {
         for (int index = 0; index < size; index++) {
             if (data[index] == value) {
@@ -87,10 +82,10 @@ public class StaticArray {
     }
 
     /**
-     * Binary search on the used portion of the array; the values must already be sorted.
+     * binary search = Search algorithm that finds the position of a target value within a sorted array.
+     * Half of the array is eliminated during each "step"
      * <p>
-     * Idea: compare the middle element to {@code value}. If {@code value} is larger, search the right half;
-     * if smaller, search the left half. Repeat until found or the range is empty.
+     * Repeat until found / the range is empty.
      */
     public int binarySearch(int value) {
         int leftIndex = 0;
@@ -112,7 +107,7 @@ public class StaticArray {
     }
 
     /**
-     * Reverses the order of elements in the used part of the array by swapping pairs from both ends.
+     * Reverses the order of elements
      */
     public void reverse() {
         int leftIndex = 0;
@@ -136,9 +131,7 @@ public class StaticArray {
     }
 
     private void validateIndex(int index) {
-        if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Index " + index + " out of bounds for size " + size);
-        }
+        if (index < 0 || index >= size) { throw new IndexOutOfBoundsException("Index " + index + " out of bounds for size " + size); }
     }
 
     @Override
